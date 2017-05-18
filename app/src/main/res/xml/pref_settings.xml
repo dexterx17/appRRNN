@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <EditTextPreference
+        android:defaultValue="@string/pref_location_default"
+        android:inputType="text"
+        android:key="@string/pref_location_key"
+        android:singleLine="true"
+        android:title="@string/pref_location_label"
+        />
+    <ListPreference
+        android:defaultValue="@string/pref_frecuencia_default"
+        android:entries="@array/pref_frecuencia_options"
+        android:entryValues="@array/pref_frecuencia_values"
+        android:key="@string/pref_frecuencia_key"
+        android:title="@string/pref_frecuencia_label"/>
+
+    <EditTextPreference
+        android:defaultValue="@string/pref_decimales_default"
+        android:inputType="number"
+        android:key="@string/pref_decimales_key"
+        android:singleLine="true"
+        android:title="@string/pref_decimales_label"/>
+
+    <CheckBoxPreference
+        android:defaultValue="@bool/pref_notifications_default"
+        app:key="@string/pref_notifications_key"
+        android:summaryOff="@string/pref_notifications_off"
+        android:summaryOn="@string/pref_notifications_on"
+        android:title="@string/pref_notifications_label"/>
+
+    <EditTextPreference
+        android:defaultValue="@string/pref_url_rest_default"
+        android:inputType="text"
+        android:singleLine="true"
+        android:key="@string/pref_url_rest_key"
+        android:title="@string/pref_url_rest_label"/>
+
+
+</PreferenceScreen>

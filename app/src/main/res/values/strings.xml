@@ -1,0 +1,46 @@
+<resources>
+    <string name="app_name">Clima Tungurahua</string>
+
+    <!--Opciones menu-->
+
+    <string name="refresh">Recargar</string>
+    <string name="map">Mapa</string>
+    <string name="settings">Configuraciones</string>
+
+    <!--List stations-->
+    <string name="station_name">Nombre estacion</string>
+    <string name="station_canton">Canton</string>
+    <string name="msnm">MSNM</string>
+    <string name="station_altura">Altura</string>
+    <!--View station-->
+    <string name="param_name">Nombre parametro</string>
+
+    <!--Configuraciones-->
+    <string name="pref_location_default">Ambato, Ecuador</string>
+    <string name="pref_location_key">location</string>
+    <string name="pref_location_label">Ubicación</string>
+
+    <string name="pref_frecuencia_default">1</string>
+    <string name="pref_frecuencia_key">frecuencia</string>
+    <string name="pref_frecuencia_label">Frecuencia de sincronización</string>
+
+    <string name="pref_notifications_key">notifications</string>
+    <string name="pref_notifications_label">Habilitar notificaciones</string>
+    <string name="pref_notifications_on">Habilitadas</string>
+    <string name="pref_notifications_off">Deshabilitadas</string>
+
+    <string name="pref_decimales_default">4</string>
+    <string name="pref_decimales_key">decimales</string>
+    <string name="pref_decimales_label">Número de decimales</string>
+
+    <string name="pref_url_rest_default">http://rrnn.tungurahua.gob.ec/services/Ws_red</string>
+    <string name="pref_url_rest_key">url_rest</string>
+    <string name="pref_url_rest_label">URL servicio REST</string>
+
+
+    <string name="station_detail">Detalles estación</string>
+    <string name="error_load_list_stations">Error al cargar estaciones</string>
+    <string name="error_load_list_params_station">La estación no esta transmitiendo datos por el momento</string>
+    <string name="error_load_list_param">Error al leer datos del parametro</string>
+
+</resources>
