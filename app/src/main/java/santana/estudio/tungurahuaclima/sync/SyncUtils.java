@@ -31,7 +31,13 @@ public class SyncUtils {
 
     private static boolean sInit;
 
-    private static final String STATIONS_SYNC_TASK = "stations-sync";
+    public static final String STATION_KEY_ID = "_id";
+
+    public static final String SYNC_TASK = "sync-task";
+    public static final String STATIONS_SYNC_TASK = "stations-sync";
+    public static final String PARAMS_STATION_SYNC_TASK = "params-station-sync";
+
+
 
     static void syncWithServerPeriodically(@NonNull final Context context) {
         Driver driver = new GooglePlayDriver(context);
@@ -50,6 +56,7 @@ public class SyncUtils {
                 .build();
         dispatcher.schedule(syncJob);
     }
+
     synchronized public static void init(@NonNull final Context context) {
         if(sInit) return;
 
@@ -69,15 +76,24 @@ public class SyncUtils {
                         null,
                         null);
                 if (cursor == null || cursor.getCount() == 0) {
-                    startSyncNow(context);
+                    startSyncStationsNow(context);
                 }
                 cursor.close();
             }
         });
         checkEmptyDB.start();
     }
-    public static void startSyncNow(@NonNull final Context context) {
+
+    public static void startSyncStationsNow(@NonNull final Context context) {
         Intent intent = new Intent(context, StationsSyncIntentService.class);
+        intent.putExtra(SYNC_TASK, STATIONS_SYNC_TASK);
+        context.startService(intent);
+    }
+
+    synchronized public static void syncParamsStation(@NonNull final Context context,String stationID){
+        Intent intent = new Intent(context, StationsSyncIntentService.class);
+        intent.putExtra(SYNC_TASK, PARAMS_STATION_SYNC_TASK);
+        intent.putExtra(STATION_KEY_ID, stationID);
         context.startService(intent);
     }
 }

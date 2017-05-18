@@ -1,5 +1,6 @@
 package santana.estudio.tungurahuaclima.adapters;
 
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import santana.estudio.tungurahuaclima.R;
+import santana.estudio.tungurahuaclima.data.RrnnContract;
 
 /**
  * Created by dexter on 16/05/2017.
@@ -14,7 +16,7 @@ import santana.estudio.tungurahuaclima.R;
 
 public class ParamsStationAdapter extends RecyclerView.Adapter<ParamsStationAdapter.ParamsStationAdapterViewHolder>{
 
-    ParamsStationAdapter.Param [] params;
+    Cursor params;
 
     private final ParamsStationAdapterOnClickHander clickHander;
 
@@ -42,33 +44,41 @@ public class ParamsStationAdapter extends RecyclerView.Adapter<ParamsStationAdap
 
         @Override
         public void onClick(View v) {
-            int pos = getAdapterPosition();
-            String valor = params[pos].key;
-            clickHander.onClick(valor);
+            String codigo = (String) v.getTag();
+            clickHander.onClick(codigo);
         }
     }
     @Override
     public ParamsStationAdapter.ParamsStationAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.param_station_list_item, parent, false);
+        view.setFocusable(true);
         return new ParamsStationAdapterViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(ParamsStationAdapter.ParamsStationAdapterViewHolder holder, int position) {
-        holder.tvParamName.setText(params[position].name);
-        holder.tvParamUnity.setText(params[position].unity);
-        holder.tvParamDateMin.setText(params[position].dateMin);
-        holder.tvParamDateMax.setText(params[position].dateMax);
+        params.moveToPosition(position);
+        String paramKey = params.getString(params.getColumnIndex(RrnnContract.ParamEntry.COLUMN_KEY));
+        String paramName = params.getString(params.getColumnIndex(RrnnContract.ParamEntry.COLUMN_NAME));
+        String paramUnity = params.getString(params.getColumnIndex(RrnnContract.ParamEntry.COLUMN_UNITY));
+        String paramMin = params.getString(params.getColumnIndex(RrnnContract.ParamEntry.COLUMN_MIN));
+        String paramMax = params.getString(params.getColumnIndex(RrnnContract.ParamEntry.COLUMN_MAX));
+
+        holder.tvParamName.setText(paramName);
+        holder.tvParamUnity.setText(paramUnity);
+        holder.tvParamDateMin.setText(paramMin);
+        holder.tvParamDateMax.setText(paramMax);
+        holder.itemView.setTag(paramKey);
     }
 
     @Override
     public int getItemCount() {
         if( params == null) return 0;
-        return params.length;
+        return params.getCount();
     }
 
-    public void setParamsStationData(ParamsStationAdapter.Param[] data) {
+    public void swapCursor(Cursor data) {
         params = data;
         notifyDataSetChanged();
     }

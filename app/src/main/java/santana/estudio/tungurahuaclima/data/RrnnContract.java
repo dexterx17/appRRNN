@@ -56,8 +56,8 @@ public class RrnnContract {
         public static final String COLUMN_KEY = "parametro";
         public static final String COLUMN_UNITY = "unity";
         public static final String COLUMN_AVERAGE = "average";
-        public static final String COLUMN_MIN = "min";
-        public static final String COLUMN_MAX = "max";
+        public static final String COLUMN_MIN = "date_min";
+        public static final String COLUMN_MAX = "date_max";
         public static final String COLUMN_PARAM_ID = "parametro_id";
         public static final String COLUMN_STATION_ID = "station_id";
 

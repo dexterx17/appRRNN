@@ -16,6 +16,17 @@ public class StationsSyncIntentService extends IntentService
     }
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        StationsSyncTask.syncStations(this);
+        if (intent.hasExtra(SyncUtils.SYNC_TASK)) {
+            String task = intent.getStringExtra(SyncUtils.SYNC_TASK);
+            switch (task) {
+                case SyncUtils.STATIONS_SYNC_TASK:
+                    StationsSyncTask.syncStations(this);
+                    break;
+                case SyncUtils.PARAMS_STATION_SYNC_TASK:
+                    String stationId = intent.getStringExtra(SyncUtils.STATION_KEY_ID);
+                    StationsSyncTask.syncParamsStation(this,stationId);
+                    break;
+            }
+        }
     }
 }

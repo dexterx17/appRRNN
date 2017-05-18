@@ -40,7 +40,10 @@ public class RrnnJsonUtils {
     private static final String PARAM_ID = "_id";
     private static final String PARAM_KEY = "parametro";
     private static final String PARAM_UNITY = "unidad";
+    private static final String PARAM_MIN = "date_min";
+    private static final String PARAM_MAX = "date_max";
     private static final String PARAM_OPERATION_AVG = "promedio";
+    private static final String PARAM_STATION_ID = "estacion_id";
 
     private static final String DATO_DATE = "fecha";
     private static final String DATO_STATION_ID = "id_estacion";
@@ -122,14 +125,14 @@ public class RrnnJsonUtils {
         return stations;
     }
 
-    public static ParamsStationAdapter.Param[] getParamsStationObjectFromJson(Context context, String jsonStr) throws JSONException{
-        ParamsStationAdapter.Param[] params = null;
+    public static ContentValues[] getParamsStationContentValuesFromJson(Context context, String jsonStr, String stationId) throws JSONException{
+        ContentValues[] params = null;
 
         JSONObject jsonObject = new JSONObject(jsonStr);
 
         JSONArray jsonArray = jsonObject.getJSONArray(PARAMS_STATION_LIST_KEY);
 
-        params = new ParamsStationAdapter.Param[jsonArray.length()];
+        params = new ContentValues[jsonArray.length()];
 
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject object = jsonArray.getJSONObject(i);
@@ -138,7 +141,18 @@ public class RrnnJsonUtils {
             String paramKey = object.getString(PARAM_KEY);
             String paramUnity = object.getString(PARAM_UNITY);
             String paramOperation = object.getString(PARAM_OPERATION_AVG);
-            ParamsStationAdapter.Param param = new ParamsStationAdapter.Param(paramID,paramName,paramKey,paramUnity," "," ",paramOperation);
+            String paramMin = object.getString(PARAM_MIN);
+            String paramMax = object.getString(PARAM_MAX);
+            ContentValues param = new ContentValues();
+            param.put(RrnnContract.ParamEntry.COLUMN_NAME,paramName);
+            param.put(RrnnContract.ParamEntry.COLUMN_KEY,paramKey);
+            param.put(RrnnContract.ParamEntry.COLUMN_UNITY,paramUnity);
+            param.put(RrnnContract.ParamEntry.COLUMN_AVERAGE,paramOperation);
+            param.put(RrnnContract.ParamEntry.COLUMN_MIN,paramMin);
+            param.put(RrnnContract.ParamEntry.COLUMN_MAX,paramMax);
+            param.put(RrnnContract.ParamEntry.COLUMN_PARAM_ID, paramID);
+            param.put(RrnnContract.ParamEntry.COLUMN_STATION_ID, stationId);
+
             params[i] = param;
         }
         return params;

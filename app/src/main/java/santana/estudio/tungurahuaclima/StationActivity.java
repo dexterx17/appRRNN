@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,6 +25,7 @@ import java.net.URL;
 import santana.estudio.tungurahuaclima.adapters.ParamsStationAdapter;
 import santana.estudio.tungurahuaclima.adapters.StationsAdapter;
 import santana.estudio.tungurahuaclima.data.RrnnContract;
+import santana.estudio.tungurahuaclima.sync.SyncUtils;
 import santana.estudio.tungurahuaclima.utilities.NetworkUtils;
 import santana.estudio.tungurahuaclima.utilities.RrnnJsonUtils;
 
@@ -33,7 +35,7 @@ import santana.estudio.tungurahuaclima.utilities.RrnnJsonUtils;
 
 public class StationActivity extends AppCompatActivity implements
         ParamsStationAdapter.ParamsStationAdapterOnClickHander,
-        LoaderManager.LoaderCallbacks<ParamsStationAdapter.Param[]>{
+        LoaderManager.LoaderCallbacks<Cursor>{
 
     private RecyclerView recyclerView;
     private TextView tvErrorList;
@@ -56,6 +58,8 @@ public class StationActivity extends AppCompatActivity implements
     String stationID;
 
     ParamsStationAdapter paramsStationAdapter;
+
+    private int mPosition = RecyclerView.NO_POSITION;
 
     private static boolean PREFERENCES_UPDATED = false;
 
@@ -91,6 +95,7 @@ public class StationActivity extends AppCompatActivity implements
                 initData(savedInstanceState.getString(STATION_KEY_ID));
             }
         }
+
         if (intent != null) {
             Log.v(TAG, "intent: ");
             if (intent.hasExtra(Intent.EXTRA_TEXT)) {
@@ -99,6 +104,7 @@ public class StationActivity extends AppCompatActivity implements
                 initData(stationID);
             }
         }
+
     }
 
     private void initData(String stationID) {
@@ -130,8 +136,8 @@ public class StationActivity extends AppCompatActivity implements
 
         Bundle bundle = new Bundle();
         bundle.putString(STATION_KEY_ID,stationID);
-        LoaderManager.LoaderCallbacks<ParamsStationAdapter.Param[]> callback = StationActivity.this;
-        getSupportLoaderManager().initLoader(PARAMS_STATION_LOADER_ID, bundle, callback);
+        SyncUtils.syncParamsStation(this,stationID);
+        getSupportLoaderManager().initLoader(PARAMS_STATION_LOADER_ID, bundle, this);
     }
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -158,60 +164,42 @@ public class StationActivity extends AppCompatActivity implements
     }
 
     @Override
-    public Loader<ParamsStationAdapter.Param[]> onCreateLoader(int id, final Bundle args) {
-        return new AsyncTaskLoader<ParamsStationAdapter.Param[]>(this) {
-            ParamsStationAdapter.Param [] params = null;
-
-            @Override
-            protected void onStartLoading() {
-                Log.v( TAG, "PARAM START NAME: "+args.getString(STATION_KEY_ID));
-                if (params != null) {
-                    deliverResult(params);
-                }else{
-                    pbLoaderList.setVisibility(View.VISIBLE);
-                    forceLoad();
-                }
-            }
-
-            @Override
-            public ParamsStationAdapter.Param[] loadInBackground() {
-                Log.v( TAG, "PARAM LOAD NAME: "+args.getString(STATION_KEY_ID));
-                String stationName = args.getString(STATION_KEY_ID);
-                URL urlParams = NetworkUtils.buildParamsStationUrl(stationName);
-                try {
-                    String json = NetworkUtils.getResponseFromHttpUrl(urlParams);
-
-                    ParamsStationAdapter.Param[] params = RrnnJsonUtils.getParamsStationObjectFromJson(StationActivity.this,json);
-
-                    return params;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-
-            @Override
-            public void deliverResult(ParamsStationAdapter.Param[] data) {
-                params = data;
-                super.deliverResult(data);
-            }
-        };
-    }
-
-    @Override
-    public void onLoadFinished(Loader<ParamsStationAdapter.Param[]> loader, ParamsStationAdapter.Param[] data) {
-        pbLoaderList.setVisibility(View.INVISIBLE);
-        paramsStationAdapter.setParamsStationData(data);
-        if (data != null) {
-            showData();
-        }else{
-            showError();
+    public Loader<Cursor> onCreateLoader(int id, final Bundle args) {
+        switch (id){
+            case PARAMS_STATION_LOADER_ID:
+                Uri paramsURI = RrnnContract.ParamEntry.CONTENT_URI.buildUpon()
+                        .appendPath(stationID)
+                        .build();
+                String select = RrnnContract.StationEntry.COLUMN_STATION_ID + " = ?";
+                String[] params = new String[]{stationID};
+                return new CursorLoader(this,
+                        paramsURI,
+                        null,
+                        select,
+                        params,
+                        null);
+            default:
+                throw new RuntimeException("Loader no implementado: "+id);
         }
     }
 
     @Override
-    public void onLoaderReset(Loader<ParamsStationAdapter.Param[]> loader) {
-        //paramsStationAdapter.c
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data != null && data.moveToFirst()) {
+            paramsStationAdapter.swapCursor(data);
+            if(mPosition==RecyclerView.NO_POSITION) mPosition = 0;
+            recyclerView.smoothScrollToPosition(mPosition);
+            if (data.getCount() != 0) {
+                showData();
+            }
+        }else{
+            return;
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        paramsStationAdapter.swapCursor(null);
     }
 
     @Override

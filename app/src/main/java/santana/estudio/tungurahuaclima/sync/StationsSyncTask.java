@@ -36,4 +36,20 @@ public class StationsSyncTask  {
             e.printStackTrace();
         }
     }
+
+    synchronized public static void syncParamsStation(Context context, String stationID) {
+        URL urlParamsStation = NetworkUtils.buildParamsStationUrl(stationID);
+
+        try {
+            String json = NetworkUtils.getResponseFromHttpUrl(urlParamsStation);
+            ContentValues[] paramValues = RrnnJsonUtils.getParamsStationContentValuesFromJson(context,json, stationID);
+
+            if (paramValues != null && paramValues.length != 0) {
+                ContentResolver contentResolver = context.getContentResolver();
+                contentResolver.bulkInsert(RrnnContract.ParamEntry.CONTENT_URI, paramValues);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

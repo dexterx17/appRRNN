@@ -32,7 +32,7 @@ public class StationsProvider extends ContentProvider {
         matcher.addURI(authority, RrnnContract.PATH_STATIONS + "/#", CODE_STATIONS_WITH_ID);
 
         matcher.addURI(authority, RrnnContract.PATH_PARAMS, CODE_PARAMS);
-        matcher.addURI(authority, RrnnContract.PATH_PARAMS + "/#", CODE_PARAMS_BY_STATION);
+        matcher.addURI(authority, RrnnContract.PATH_PARAMS + "/*", CODE_PARAMS_BY_STATION);
 
         return matcher;
     }
@@ -76,7 +76,7 @@ public class StationsProvider extends ContentProvider {
                 String statId = uri.getLastPathSegment();
                 String[] selectArg = new String[]{statId};
                 cursor = mOpenHelper.getReadableDatabase().query(
-                        RrnnContract.StationEntry.TABLE_NAME,
+                        RrnnContract.ParamEntry.TABLE_NAME,
                         projection,
                         RrnnContract.ParamEntry.COLUMN_STATION_ID + " =  ?",
                         selectArg,
@@ -85,14 +85,12 @@ public class StationsProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
-            case CODE_PARAM_BY_ID:
-                String paramId = uri.getLastPathSegment();
-                String[] selecArg = new String[]{paramId};
+            case CODE_PARAMS:
                 cursor = mOpenHelper.getReadableDatabase().query(
-                        RrnnContract.StationEntry.TABLE_NAME,
+                        RrnnContract.ParamEntry.TABLE_NAME,
                         projection,
-                        RrnnContract.ParamEntry.COLUMN_STATION_ID + " =  ?",
-                        selecArg,
+                        selection,
+                        selectionArgs,
                         null,
                         null,
                         sortOrder

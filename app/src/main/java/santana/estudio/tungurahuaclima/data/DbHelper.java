@@ -41,6 +41,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 "CREATE TABLE " + RrnnContract.ParamEntry.TABLE_NAME + " (" +
                         RrnnContract.ParamEntry._ID   + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         RrnnContract.ParamEntry.COLUMN_STATION_ID   + " STRING NOT NULL, " +
+                        RrnnContract.ParamEntry.COLUMN_PARAM_ID   + " STRING NOT NULL, " +
                         RrnnContract.ParamEntry.COLUMN_KEY + " STRING NOT NULL, "+
                         RrnnContract.ParamEntry.COLUMN_NAME + " STRING NOT NULL, "+
                         RrnnContract.ParamEntry.COLUMN_UNITY + " STRING NOT NULL, "+
