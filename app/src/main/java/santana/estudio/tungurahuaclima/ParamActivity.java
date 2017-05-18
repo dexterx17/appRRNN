@@ -63,8 +63,6 @@ public class ParamActivity extends AppCompatActivity implements
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
 
-        paramsAdapter = new ParamAdapter(this);
-        recyclerView.setAdapter(paramsAdapter);
         Intent intent = getIntent();
         if (intent != null) {
 
@@ -75,36 +73,70 @@ public class ParamActivity extends AppCompatActivity implements
             }
             if (intent.hasExtra(RrnnContract.StationEntry.COLUMN_STATION_ID)) {
                 stationID = intent.getStringExtra(RrnnContract.StationEntry.COLUMN_STATION_ID);
+                loadStationData(stationID);
+                loadParamData(stationID,paramID);
 
-                String select = RrnnContract.StationEntry.COLUMN_STATION_ID + " = ?";
-                String[] params = new String[]{stationID};
-
-                Cursor cursor = this.getContentResolver().query(
-                        RrnnContract.StationEntry.CONTENT_URI,
-                        null,
-                        select,
-                        params,
-                        null);
-                if (cursor != null || cursor.getCount() != 0) {
-                    cursor.moveToFirst();
-                    String stationName = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_NAME));
-                    String stationType = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_TYPE));
-                    getSupportActionBar().setTitle(stationName.toUpperCase());
-                    getSupportActionBar().setSubtitle(stationType.toUpperCase());
-                    cursor.close();
-                }
             }
         }
+    }
 
-        Bundle bundle = new Bundle();
-        bundle.putString(STATION_KEY_ID,stationID);
-        bundle.putString(PARAM_KEY_ID,paramID);
-        bundle.putString(DATE_KEY_ID,"2014-08-30");
-        LoaderManager.LoaderCallbacks<ParamAdapter.Dato[]> callback = ParamActivity.this;
-        getSupportLoaderManager().initLoader(PARAMS_LOADER_ID, bundle, callback);
+    private void loadStationData(String stationID){
+        String select = RrnnContract.StationEntry.COLUMN_STATION_ID + " = ?";
+        String[] params = new String[]{stationID};
+
+        Cursor cursor = this.getContentResolver().query(
+                RrnnContract.StationEntry.CONTENT_URI,
+                null,
+                select,
+                params,
+                null);
+
+        if (cursor != null || cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            String stationName = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_NAME));
+            String stationType = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_TYPE));
+            getSupportActionBar().setTitle(stationName.toUpperCase());
+
+            cursor.close();
+        }
     }
 
 
+    private void loadParamData(String stationID,String paramID){
+        String select = RrnnContract.ParamEntry.COLUMN_STATION_ID + " = ? AND "+
+                RrnnContract.ParamEntry.COLUMN_KEY+ " = ?";
+        String[] params = new String[]{stationID,paramID};
+
+        Cursor cursor = this.getContentResolver().query(
+                RrnnContract.ParamEntry.CONTENT_URI,
+                null,
+                select,
+                params,
+                null);
+
+        if (cursor != null || cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            String paramName = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_NAME));
+            String paramUnity = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_UNITY));
+            String paramDateMax = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_MAX));
+            paramDateMax = paramDateMax.replace('/','-');
+            getSupportActionBar().setSubtitle(paramName.toUpperCase());
+
+            Bundle bundle = new Bundle();
+            bundle.putString(STATION_KEY_ID,stationID);
+            bundle.putString(PARAM_KEY_ID,paramID);
+            bundle.putString(DATE_KEY_ID,paramDateMax);
+
+            paramsAdapter = new ParamAdapter(this,this,paramUnity);
+            recyclerView.setAdapter(paramsAdapter);
+
+            LoaderManager.LoaderCallbacks<ParamAdapter.Dato[]> callback = ParamActivity.this;
+            getSupportLoaderManager().initLoader(PARAMS_LOADER_ID, bundle, callback);
+
+
+            cursor.close();
+        }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

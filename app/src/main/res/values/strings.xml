@@ -15,6 +15,10 @@
     <!--View station-->
     <string name="param_name">Nombre parametro</string>
 
+    <!--View datos-->
+    <string name="tomorrow">Mañana</string>
+    <string name="today">Hoy</string>
+    <string name="yesterday">Ayer</string>
     <!--Configuraciones-->
     <string name="pref_location_default">Ambato, Ecuador</string>
     <string name="pref_location_key">location</string>
@@ -29,7 +33,7 @@
     <string name="pref_notifications_on">Habilitadas</string>
     <string name="pref_notifications_off">Deshabilitadas</string>
 
-    <string name="pref_decimales_default">4</string>
+    <string name="pref_decimales_default">2</string>
     <string name="pref_decimales_key">decimales</string>
     <string name="pref_decimales_label">Número de decimales</string>
 

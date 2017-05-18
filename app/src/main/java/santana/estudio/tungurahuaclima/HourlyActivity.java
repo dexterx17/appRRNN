@@ -59,7 +59,7 @@ public class HourlyActivity extends AppCompatActivity implements
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
 
-        paramsAdapter = new ParamAdapter(this);
+        paramsAdapter = new ParamAdapter(this,this,"");
         recyclerView.setAdapter(paramsAdapter);
     }
 
