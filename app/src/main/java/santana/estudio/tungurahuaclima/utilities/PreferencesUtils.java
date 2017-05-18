@@ -26,4 +26,23 @@ public class PreferencesUtils {
 
         return decimales;
     }
+
+    public static String getServerUrl(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        String url = sp.getString(context.getResources().getString(R.string.pref_url_rest_key),"http://rrnn.tungurahua.gob.ec/services/Ws_red");
+
+        return url;
+    }
+
+    public static int getNumDays(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        String url = sp.getString(context.getResources().getString(R.string.pref_num_days_key),"14");
+        return Integer.valueOf(url);
+    }
+
+    public static int getNumHours(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        String url = sp.getString(context.getResources().getString(R.string.pref_num_hours_key),"24");
+        return Integer.valueOf(url);
+    }
 }

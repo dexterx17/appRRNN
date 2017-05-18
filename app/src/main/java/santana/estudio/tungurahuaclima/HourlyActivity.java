@@ -1,5 +1,8 @@
 package santana.estudio.tungurahuaclima;
 
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
@@ -17,8 +20,11 @@ import android.widget.Toast;
 
 import java.net.URL;
 
+import santana.estudio.tungurahuaclima.adapters.HourlyAdapter;
 import santana.estudio.tungurahuaclima.adapters.ParamAdapter;
+import santana.estudio.tungurahuaclima.data.RrnnContract;
 import santana.estudio.tungurahuaclima.utilities.NetworkUtils;
+import santana.estudio.tungurahuaclima.utilities.PreferencesUtils;
 import santana.estudio.tungurahuaclima.utilities.RrnnJsonUtils;
 
 /**
@@ -26,7 +32,7 @@ import santana.estudio.tungurahuaclima.utilities.RrnnJsonUtils;
  */
 
 public class HourlyActivity extends AppCompatActivity implements
-        ParamAdapter.ParamAdapterOnClickHandler,
+        HourlyAdapter.HourlyAdapterOnClickHandler,
         LoaderManager.LoaderCallbacks<ParamAdapter.Dato[]> {
 
     private RecyclerView recyclerView;
@@ -35,7 +41,7 @@ public class HourlyActivity extends AppCompatActivity implements
 
     private static final String TAG = ParamActivity.class.getSimpleName();
 
-    private static final int PARAMS_LOADER_ID = 2;
+    private static final int HOURLY_LOADER_ID = 2;
     private static final String STATION_KEY_ID = "station_id";
     private static final String PARAM_KEY_ID = "param_id";
     private static final String DATE_KEY_ID = "date";
@@ -44,8 +50,9 @@ public class HourlyActivity extends AppCompatActivity implements
     String paramID;
     String dateID;
 
-    ParamAdapter paramsAdapter;
+    HourlyAdapter paramsAdapter;
 
+    Context mContext;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,11 +65,81 @@ public class HourlyActivity extends AppCompatActivity implements
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
+        mContext = getApplicationContext();
+        Intent intent = getIntent();
+        if (intent != null) {
 
-        paramsAdapter = new ParamAdapter(this,this,"");
-        recyclerView.setAdapter(paramsAdapter);
+            if (intent.hasExtra(Intent.EXTRA_TEXT)) {
+                paramID = intent.getStringExtra(Intent.EXTRA_TEXT);
+                tvErrorList.setVisibility(View.VISIBLE);
+
+            }
+            if (intent.hasExtra(RrnnContract.StationEntry.COLUMN_STATION_ID)) {
+                stationID = intent.getStringExtra(RrnnContract.StationEntry.COLUMN_STATION_ID);
+                dateID = intent.getStringExtra(RrnnContract.WeatherHourlyEntry.COLUMN_DATE);
+
+                loadStationData(stationID);
+                loadParamData(stationID,paramID,dateID);
+
+            }
+        }
     }
 
+
+    private void loadStationData(String stationID){
+        String select = RrnnContract.StationEntry.COLUMN_STATION_ID + " = ?";
+        String[] params = new String[]{stationID};
+
+        Cursor cursor = this.getContentResolver().query(
+                RrnnContract.StationEntry.CONTENT_URI,
+                null,
+                select,
+                params,
+                null);
+
+        if (cursor != null || cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            String stationName = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_NAME));
+            String stationType = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_TYPE));
+            getSupportActionBar().setTitle(stationName.toUpperCase());
+
+            cursor.close();
+        }
+    }
+
+    private void loadParamData(String stationID,String paramID,String fecha){
+        String select = RrnnContract.ParamEntry.COLUMN_STATION_ID + " = ? AND "+
+                RrnnContract.ParamEntry.COLUMN_KEY+ " = ?";
+        String[] params = new String[]{stationID,paramID};
+
+        Cursor cursor = this.getContentResolver().query(
+                RrnnContract.ParamEntry.CONTENT_URI,
+                null,
+                select,
+                params,
+                null);
+
+        if (cursor != null || cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            String paramName = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_NAME));
+            String paramUnity = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_UNITY));
+
+            getSupportActionBar().setSubtitle(paramName.toUpperCase());
+
+            Bundle bundle = new Bundle();
+            bundle.putString(STATION_KEY_ID,stationID);
+            bundle.putString(PARAM_KEY_ID,paramID);
+            bundle.putString(DATE_KEY_ID,fecha);
+
+            paramsAdapter = new HourlyAdapter(this,this,paramUnity);
+            recyclerView.setAdapter(paramsAdapter);
+
+            LoaderManager.LoaderCallbacks<ParamAdapter.Dato[]> callback = HourlyActivity.this;
+            getSupportLoaderManager().initLoader(HOURLY_LOADER_ID, bundle, callback);
+
+            cursor.close();
+        }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -74,8 +151,8 @@ public class HourlyActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onClick(String param) {
-        Toast toast = Toast.makeText(this, "CLICK: " + param, Toast.LENGTH_SHORT);
+    public void onClick(String fecha) {
+        Toast toast = Toast.makeText(this, "CLICK: " + fecha, Toast.LENGTH_SHORT);
         toast.show();
     }
 
@@ -99,8 +176,7 @@ public class HourlyActivity extends AppCompatActivity implements
                 String stationID = args.getString(STATION_KEY_ID);
                 String paramID = args.getString(PARAM_KEY_ID);
                 String fecha = args.getString(DATE_KEY_ID);
-                URL urlDatos = NetworkUtils.buildHourlyUrl(stationID,fecha,24,paramID);
-
+                URL urlDatos = NetworkUtils.buildHourlyUrl(getApplicationContext(),stationID,fecha, PreferencesUtils.getNumHours(mContext),paramID);
                 try {
                     String json = NetworkUtils.getResponseFromHttpUrl(urlDatos);
 

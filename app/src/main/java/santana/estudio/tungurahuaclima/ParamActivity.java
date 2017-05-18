@@ -1,5 +1,6 @@
 package santana.estudio.tungurahuaclima;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import santana.estudio.tungurahuaclima.adapters.ParamAdapter;
 import santana.estudio.tungurahuaclima.adapters.ParamsStationAdapter;
 import santana.estudio.tungurahuaclima.data.RrnnContract;
 import santana.estudio.tungurahuaclima.utilities.NetworkUtils;
+import santana.estudio.tungurahuaclima.utilities.PreferencesUtils;
 import santana.estudio.tungurahuaclima.utilities.RrnnJsonUtils;
 
 /**
@@ -50,6 +52,8 @@ public class ParamActivity extends AppCompatActivity implements
 
     ParamAdapter paramsAdapter;
 
+    Context mContext;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,7 +66,7 @@ public class ParamActivity extends AppCompatActivity implements
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-
+        mContext = getApplicationContext();
         Intent intent = getIntent();
         if (intent != null) {
 
@@ -148,9 +152,12 @@ public class ParamActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onClick(String param) {
-        Toast toast = Toast.makeText(this, "CLICK: " + param, Toast.LENGTH_SHORT);
-        toast.show();
+    public void onClick(String fecha) {
+        Intent intent = new Intent(this, HourlyActivity.class);
+        intent.putExtra(Intent.EXTRA_TEXT,paramID);
+        intent.putExtra(RrnnContract.StationEntry.COLUMN_STATION_ID,stationID);
+        intent.putExtra(RrnnContract.WeatherHourlyEntry.COLUMN_DATE,fecha.substring(0,10));
+        startActivity(intent);
     }
 
     @Override
@@ -173,7 +180,7 @@ public class ParamActivity extends AppCompatActivity implements
                 String stationID = args.getString(STATION_KEY_ID);
                 String paramID = args.getString(PARAM_KEY_ID);
                 String fecha = args.getString(DATE_KEY_ID);
-                URL urlDatos = NetworkUtils.buildDailyUrl(stationID,fecha,14,paramID);
+                URL urlDatos = NetworkUtils.buildDailyUrl(mContext,stationID,fecha, PreferencesUtils.getNumDays(mContext),paramID);
 
                 try {
                     String json = NetworkUtils.getResponseFromHttpUrl(urlDatos);

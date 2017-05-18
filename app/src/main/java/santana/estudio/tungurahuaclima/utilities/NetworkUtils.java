@@ -1,5 +1,6 @@
 package santana.estudio.tungurahuaclima.utilities;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
@@ -32,8 +33,9 @@ public final class NetworkUtils {
     final static String FORMAT_PARAM = "format";
     final static String ID_PARAM = "id";
 
-    public static URL buildListUrl(String entity){
-        Uri uri = Uri.parse(URL_REST_RRNN).buildUpon()
+    public static URL buildListUrl(Context context, String entity){
+
+        Uri uri = Uri.parse(PreferencesUtils.getServerUrl(context)).buildUpon()
                 .appendPath(entity)
                 .appendQueryParameter(FORMAT_PARAM,format)
                 .build();
@@ -47,8 +49,8 @@ public final class NetworkUtils {
         return url;
     }
 
-    public static URL buildParamsStationUrl(String stationID){
-        Uri uri = Uri.parse(URL_REST_RRNN).buildUpon()
+    public static URL buildParamsStationUrl(Context context, String stationID){
+        Uri uri = Uri.parse(PreferencesUtils.getServerUrl(context)).buildUpon()
                 .appendPath(URL_PREFIX_STATIONS)
                 .appendPath(ID_PARAM)
                 .appendPath(stationID)
@@ -64,7 +66,7 @@ public final class NetworkUtils {
         return url;
     }
 
-    public static URL buildItemUrl(String entity, String id){
+    public static URL buildItemUrl(Context context, String entity, String id){
         Uri uri = Uri.parse(URL_REST_RRNN).buildUpon()
                 .appendPath(entity)
                 .appendQueryParameter(ID_PARAM,id)
@@ -80,8 +82,8 @@ public final class NetworkUtils {
         return url;
     }
 
-    public static URL buildHourlyUrl(String station,String fecha, int total_items, String paramId) {
-        Uri uri = Uri.parse(URL_REST_RRNN).buildUpon()
+    public static URL buildHourlyUrl(Context context, String station,String fecha, int total_items, String paramId) {
+        Uri uri = Uri.parse(PreferencesUtils.getServerUrl(context)).buildUpon()
                 .appendPath(URL_PREFIX_HOURLY)
                 .appendPath(station)
                 .appendPath(fecha)
@@ -99,8 +101,8 @@ public final class NetworkUtils {
         return url;
     }
 
-    public static URL buildDailyUrl(String station,String fecha, int total_items, String paramId) {
-        Uri uri = Uri.parse(URL_REST_RRNN).buildUpon()
+    public static URL buildDailyUrl(Context context, String station,String fecha, int total_items, String paramId) {
+        Uri uri = Uri.parse(PreferencesUtils.getServerUrl(context)).buildUpon()
                 .appendPath(URL_PREFIX_DAILY)
                 .appendPath(station)
                 .appendPath(fecha)
@@ -118,7 +120,7 @@ public final class NetworkUtils {
         return url;
     }
 
-    public static URL buildMonthlyUrl(String station,String fecha, int total_items) {
+    public static URL buildMonthlyUrl(Context context, String station,String fecha, int total_items) {
         Uri uri = Uri.parse(URL_REST_RRNN).buildUpon()
                 .appendPath(URL_PREFIX_MONTHLY)
                 .appendPath(station)

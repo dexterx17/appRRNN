@@ -27,6 +27,11 @@
             <meta-data android:name="android.support.PARENT_ACTIVITY"
                 android:value=".StationActivity"/>
         </activity>
+        <activity android:name=".HourlyActivity"
+            android:parentActivityName=".ParamActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ParamActivity"/>
+        </activity>
         <activity android:name=".SettingsActivity"
             android:label="@string/settings"/>
         <provider

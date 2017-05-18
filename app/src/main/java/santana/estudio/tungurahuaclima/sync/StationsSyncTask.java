@@ -18,7 +18,7 @@ import santana.estudio.tungurahuaclima.utilities.RrnnJsonUtils;
 public class StationsSyncTask  {
     synchronized public static void syncStations(Context context){
 
-        URL urlStations = NetworkUtils.buildListUrl(NetworkUtils.URL_PREFIX_STATIONS);
+        URL urlStations = NetworkUtils.buildListUrl(context,NetworkUtils.URL_PREFIX_STATIONS);
         try {
             String json = NetworkUtils.getResponseFromHttpUrl(urlStations);
             ContentValues[] stationValues = RrnnJsonUtils.getStationsContentValuesFromJson(context,json);
@@ -38,7 +38,7 @@ public class StationsSyncTask  {
     }
 
     synchronized public static void syncParamsStation(Context context, String stationID) {
-        URL urlParamsStation = NetworkUtils.buildParamsStationUrl(stationID);
+        URL urlParamsStation = NetworkUtils.buildParamsStationUrl(context,stationID);
 
         try {
             String json = NetworkUtils.getResponseFromHttpUrl(urlParamsStation);
