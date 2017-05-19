@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -18,16 +17,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.net.URL;
 
 import santana.estudio.tungurahuaclima.adapters.ParamsStationAdapter;
-import santana.estudio.tungurahuaclima.adapters.StationsAdapter;
 import santana.estudio.tungurahuaclima.data.RrnnContract;
 import santana.estudio.tungurahuaclima.sync.SyncUtils;
-import santana.estudio.tungurahuaclima.utilities.NetworkUtils;
-import santana.estudio.tungurahuaclima.utilities.RrnnJsonUtils;
+import santana.estudio.tungurahuaclima.utilities.PreferencesUtils;
 
 /**
  * Created by dexter on 16/05/2017.
@@ -71,6 +65,7 @@ public class StationActivity extends AppCompatActivity implements
         tvErrorList = (TextView) findViewById(R.id.tv_error_station);
         pbLoaderList = (ProgressBar) findViewById(R.id.pb_loader_station);
 
+        setOrigenUrl();
         tvName = (TextView) findViewById(R.id.tv_station_name);
         tvCanton = (TextView) findViewById(R.id.tv_station_canton);
         tvParroquia = (TextView) findViewById(R.id.tv_station_parroquia);
@@ -84,7 +79,7 @@ public class StationActivity extends AppCompatActivity implements
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
 
-        paramsStationAdapter = new ParamsStationAdapter(this);
+        paramsStationAdapter = new ParamsStationAdapter(this,this);
         recyclerView.setAdapter(paramsStationAdapter);
         Log.v(TAG, "onCreate:");
         Intent intent = getIntent();
@@ -107,6 +102,12 @@ public class StationActivity extends AppCompatActivity implements
 
     }
 
+    private void setOrigenUrl(){
+        String url_load = PreferencesUtils.getServerUrl(this);
+        String msg = getResources().getString(R.string.loading_from_rrnn);
+        tvErrorList.setText(msg+" "+url_load);
+    }
+
     private void initData(String stationID) {
         String select = RrnnContract.StationEntry.COLUMN_STATION_ID + " = ?";
         String[] params = new String[]{stationID};
@@ -121,6 +122,7 @@ public class StationActivity extends AppCompatActivity implements
             cursor.moveToFirst();
             String stationName = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_NAME));
             String stationType = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_TYPE));
+            String stationDescription = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_DESCRIPTION));
             String stationAltura = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_HEIGHT));
             getSupportActionBar().setSubtitle(stationType.toUpperCase());
             tvName.setText(stationName);
@@ -129,13 +131,14 @@ public class StationActivity extends AppCompatActivity implements
             tvAddress.setText(cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_ADDRESS)));
             tvLat.setText(cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_LATITUD)));
             tvLng.setText(cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_LONGITUD)));
-            tvDescription.setText(cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_DESCRIPTION)));
+            tvDescription.setText(stationDescription.trim());
             tvAltura.setText(stationAltura+" "+getResources().getString(R.string.msnm));
             cursor.close();
         }
 
         Bundle bundle = new Bundle();
         bundle.putString(STATION_KEY_ID,stationID);
+        showError();
         SyncUtils.syncParamsStation(this,stationID);
         getSupportLoaderManager().initLoader(PARAMS_STATION_LOADER_ID, bundle, this);
     }
@@ -146,18 +149,20 @@ public class StationActivity extends AppCompatActivity implements
     }
 
     private void showError(){
+        pbLoaderList.setVisibility(View.VISIBLE);
         tvErrorList.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.INVISIBLE);
     }
 
     private void showData(){
+        pbLoaderList.setVisibility(View.INVISIBLE);
         tvErrorList.setVisibility(View.INVISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onClick(String param) {
-        Intent intent = new Intent(this, ParamActivity.class);
+        Intent intent = new Intent(this, DailyActivity.class);
         intent.putExtra(Intent.EXTRA_TEXT,param);
         intent.putExtra(RrnnContract.StationEntry.COLUMN_STATION_ID,stationID);
         startActivity(intent);
@@ -193,6 +198,8 @@ public class StationActivity extends AppCompatActivity implements
                 showData();
             }
         }else{
+            pbLoaderList.setVisibility(View.INVISIBLE);
+            tvErrorList.setText(getResources().getString(R.string.error_load_list_params_station));
             return;
         }
     }

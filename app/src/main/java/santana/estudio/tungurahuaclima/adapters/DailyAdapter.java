@@ -18,7 +18,7 @@ import santana.estudio.tungurahuaclima.utilities.Utils;
  * Created by dexter on 17/05/2017.
  */
 
-public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamAdapterViewHolder>{
+public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.ParamAdapterViewHolder>{
 
     Dato[] datos;
 
@@ -27,7 +27,7 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamAdapter
     private final ParamAdapterOnClickHandler clickHandler;
 
     private final String unidad;
-    public ParamAdapter(@NonNull Context context, ParamAdapterOnClickHandler handler, String unidad) {
+    public DailyAdapter(@NonNull Context context, ParamAdapterOnClickHandler handler, String unidad) {
         mContext = context;
         clickHandler = handler;
         this.unidad = unidad;
@@ -103,11 +103,11 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamAdapter
     }
 
     public static class Dato{
-        String fecha;
-        double value;
-        double min;
-        double max;
-        int count;
+        public String fecha;
+        public double value;
+        public double min;
+        public double max;
+        public int count;
 
 
         public Dato(String fecha, double value, double min, double max, int count) {

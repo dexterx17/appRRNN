@@ -14,6 +14,14 @@
     <string name="station_altura">Altura</string>
     <!--View station-->
     <string name="param_name">Nombre parametro</string>
+    <string name="no_data_available">Sin datos disponibles</string>
+    <string name="lat">Lat</string>
+    <string name="lng">Lng</string>
+    <string name="altitude">Altitud</string>
+    <string name="address">Dirección</string>
+    <string name="description">Descripción</string>
+    <string name="parroquia">Parróquia</string>
+    <string name="canton">Cantón</string>
 
     <!--View datos-->
     <string name="tomorrow">Mañana</string>
@@ -52,6 +60,7 @@
 
 
     <string name="station_detail">Detalles estación</string>
+    <string name="loading_from_rrnn">Descargando información desde </string>
     <string name="error_load_list_stations">Error al cargar estaciones</string>
     <string name="error_load_list_params_station">La estación no esta transmitiendo datos por el momento</string>
     <string name="error_load_list_param">Error al leer datos del parametro</string>

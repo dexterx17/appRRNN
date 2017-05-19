@@ -21,7 +21,7 @@ import android.widget.Toast;
 import java.net.URL;
 
 import santana.estudio.tungurahuaclima.adapters.HourlyAdapter;
-import santana.estudio.tungurahuaclima.adapters.ParamAdapter;
+import santana.estudio.tungurahuaclima.adapters.DailyAdapter;
 import santana.estudio.tungurahuaclima.data.RrnnContract;
 import santana.estudio.tungurahuaclima.utilities.NetworkUtils;
 import santana.estudio.tungurahuaclima.utilities.PreferencesUtils;
@@ -33,13 +33,17 @@ import santana.estudio.tungurahuaclima.utilities.RrnnJsonUtils;
 
 public class HourlyActivity extends AppCompatActivity implements
         HourlyAdapter.HourlyAdapterOnClickHandler,
-        LoaderManager.LoaderCallbacks<ParamAdapter.Dato[]> {
+        LoaderManager.LoaderCallbacks<DailyAdapter.Dato[]> {
 
     private RecyclerView recyclerView;
     private TextView tvErrorList;
     private ProgressBar pbLoaderList;
 
-    private static final String TAG = ParamActivity.class.getSimpleName();
+    private TextView tvParam;
+    private TextView tvMin;
+    private TextView tvMax;
+    private TextView tvDate;
+    private static final String TAG = DailyActivity.class.getSimpleName();
 
     private static final int HOURLY_LOADER_ID = 2;
     private static final String STATION_KEY_ID = "station_id";
@@ -60,6 +64,10 @@ public class HourlyActivity extends AppCompatActivity implements
 
         recyclerView = (RecyclerView) findViewById(R.id.rv_list_param);
         tvErrorList = (TextView) findViewById(R.id.tv_error_param);
+        tvMin = (TextView) findViewById(R.id.tv_ph_min);
+        tvMax = (TextView) findViewById(R.id.tv_ph_max);
+        tvParam = (TextView) findViewById(R.id.tv_ph_param);
+        tvDate = (TextView) findViewById(R.id.tv_ph_date);
         pbLoaderList = (ProgressBar) findViewById(R.id.pb_loader_list_param);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -125,7 +133,8 @@ public class HourlyActivity extends AppCompatActivity implements
             String paramUnity = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_UNITY));
 
             getSupportActionBar().setSubtitle(paramName.toUpperCase());
-
+            tvParam.setText(paramName);
+            tvDate.setText(fecha);
             Bundle bundle = new Bundle();
             bundle.putString(STATION_KEY_ID,stationID);
             bundle.putString(PARAM_KEY_ID,paramID);
@@ -134,7 +143,7 @@ public class HourlyActivity extends AppCompatActivity implements
             paramsAdapter = new HourlyAdapter(this,this,paramUnity);
             recyclerView.setAdapter(paramsAdapter);
 
-            LoaderManager.LoaderCallbacks<ParamAdapter.Dato[]> callback = HourlyActivity.this;
+            LoaderManager.LoaderCallbacks<DailyAdapter.Dato[]> callback = HourlyActivity.this;
             getSupportLoaderManager().initLoader(HOURLY_LOADER_ID, bundle, callback);
 
             cursor.close();
@@ -157,9 +166,9 @@ public class HourlyActivity extends AppCompatActivity implements
     }
 
     @Override
-    public Loader<ParamAdapter.Dato[]> onCreateLoader(int id, final Bundle args) {
-        return new AsyncTaskLoader<ParamAdapter.Dato[]>(this) {
-            ParamAdapter.Dato[] datos = null;
+    public Loader<DailyAdapter.Dato[]> onCreateLoader(int id, final Bundle args) {
+        return new AsyncTaskLoader<DailyAdapter.Dato[]>(this) {
+            DailyAdapter.Dato[] datos = null;
             @Override
             protected void onStartLoading() {
                 Log.v( TAG, "PARAM START NAME: "+args.getString(STATION_KEY_ID));
@@ -172,7 +181,7 @@ public class HourlyActivity extends AppCompatActivity implements
             }
 
             @Override
-            public ParamAdapter.Dato[] loadInBackground() {
+            public DailyAdapter.Dato[] loadInBackground() {
                 String stationID = args.getString(STATION_KEY_ID);
                 String paramID = args.getString(PARAM_KEY_ID);
                 String fecha = args.getString(DATE_KEY_ID);
@@ -180,7 +189,7 @@ public class HourlyActivity extends AppCompatActivity implements
                 try {
                     String json = NetworkUtils.getResponseFromHttpUrl(urlDatos);
 
-                    ParamAdapter.Dato[] dats = RrnnJsonUtils.getDatosObjectFromJson(json,paramID);
+                    DailyAdapter.Dato[] dats = RrnnJsonUtils.getDatosObjectFromJson(json,paramID);
                     return dats;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -190,7 +199,7 @@ public class HourlyActivity extends AppCompatActivity implements
             }
 
             @Override
-            public void deliverResult(ParamAdapter.Dato[] data) {
+            public void deliverResult(DailyAdapter.Dato[] data) {
                 datos = data;
                 super.deliverResult(data);
             }
@@ -198,18 +207,19 @@ public class HourlyActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLoadFinished(Loader<ParamAdapter.Dato[]> loader, ParamAdapter.Dato[] data) {
+    public void onLoadFinished(Loader<DailyAdapter.Dato[]> loader, DailyAdapter.Dato[] data) {
         pbLoaderList.setVisibility(View.INVISIBLE);
         paramsAdapter.setDatos(data);
         if (data != null) {
             showData();
+
         }else{
             showError();
         }
     }
 
     @Override
-    public void onLoaderReset(Loader<ParamAdapter.Dato[]> loader) {
+    public void onLoaderReset(Loader<DailyAdapter.Dato[]> loader) {
 
     }
 

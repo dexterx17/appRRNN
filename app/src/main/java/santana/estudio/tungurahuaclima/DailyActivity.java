@@ -16,12 +16,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.net.URL;
 
-import santana.estudio.tungurahuaclima.adapters.ParamAdapter;
-import santana.estudio.tungurahuaclima.adapters.ParamsStationAdapter;
+import santana.estudio.tungurahuaclima.adapters.DailyAdapter;
 import santana.estudio.tungurahuaclima.data.RrnnContract;
 import santana.estudio.tungurahuaclima.utilities.NetworkUtils;
 import santana.estudio.tungurahuaclima.utilities.PreferencesUtils;
@@ -31,16 +29,21 @@ import santana.estudio.tungurahuaclima.utilities.RrnnJsonUtils;
  * Created by dexter on 17/05/2017.
  */
 
-public class ParamActivity extends AppCompatActivity implements
-    ParamAdapter.ParamAdapterOnClickHandler,
-        LoaderManager.LoaderCallbacks<ParamAdapter.Dato[]>
+public class DailyActivity extends AppCompatActivity implements
+    DailyAdapter.ParamAdapterOnClickHandler,
+        LoaderManager.LoaderCallbacks<DailyAdapter.Dato[]>
 {
 
     private RecyclerView recyclerView;
     private TextView tvErrorList;
     private ProgressBar pbLoaderList;
 
-    private static final String TAG = ParamActivity.class.getSimpleName();
+    private TextView tvParam;
+    private TextView tvMin;
+    private TextView tvMax;
+    private TextView tvDate;
+
+    private static final String TAG = DailyActivity.class.getSimpleName();
 
     private static final int PARAMS_LOADER_ID = 2;
     private static final String STATION_KEY_ID = "station_id";
@@ -50,7 +53,7 @@ public class ParamActivity extends AppCompatActivity implements
     String stationID;
     String paramID;
 
-    ParamAdapter paramsAdapter;
+    DailyAdapter paramsAdapter;
 
     Context mContext;
 
@@ -62,6 +65,10 @@ public class ParamActivity extends AppCompatActivity implements
         recyclerView = (RecyclerView) findViewById(R.id.rv_list_param);
         tvErrorList = (TextView) findViewById(R.id.tv_error_param);
         pbLoaderList = (ProgressBar) findViewById(R.id.pb_loader_list_param);
+        tvMin = (TextView) findViewById(R.id.tv_ph_min);
+        tvMax = (TextView) findViewById(R.id.tv_ph_max);
+        tvParam = (TextView) findViewById(R.id.tv_ph_param);
+        tvDate = (TextView) findViewById(R.id.tv_ph_date);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
@@ -100,7 +107,7 @@ public class ParamActivity extends AppCompatActivity implements
             String stationName = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_NAME));
             String stationType = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_TYPE));
             getSupportActionBar().setTitle(stationName.toUpperCase());
-
+            getSupportActionBar().setSubtitle(stationType.toUpperCase());
             cursor.close();
         }
     }
@@ -124,17 +131,19 @@ public class ParamActivity extends AppCompatActivity implements
             String paramUnity = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_UNITY));
             String paramDateMax = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_MAX));
             paramDateMax = paramDateMax.replace('/','-');
-            getSupportActionBar().setSubtitle(paramName.toUpperCase());
 
+
+            tvParam.setText(paramName);
+            tvDate.setText(paramDateMax);
             Bundle bundle = new Bundle();
             bundle.putString(STATION_KEY_ID,stationID);
             bundle.putString(PARAM_KEY_ID,paramID);
             bundle.putString(DATE_KEY_ID,paramDateMax);
 
-            paramsAdapter = new ParamAdapter(this,this,paramUnity);
+            paramsAdapter = new DailyAdapter(this,this,paramUnity);
             recyclerView.setAdapter(paramsAdapter);
 
-            LoaderManager.LoaderCallbacks<ParamAdapter.Dato[]> callback = ParamActivity.this;
+            LoaderManager.LoaderCallbacks<DailyAdapter.Dato[]> callback = DailyActivity.this;
             getSupportLoaderManager().initLoader(PARAMS_LOADER_ID, bundle, callback);
 
 
@@ -161,9 +170,9 @@ public class ParamActivity extends AppCompatActivity implements
     }
 
     @Override
-    public Loader<ParamAdapter.Dato[]> onCreateLoader(int id, final Bundle args) {
-        return new AsyncTaskLoader<ParamAdapter.Dato[]>(this) {
-            ParamAdapter.Dato[] datos = null;
+    public Loader<DailyAdapter.Dato[]> onCreateLoader(int id, final Bundle args) {
+        return new AsyncTaskLoader<DailyAdapter.Dato[]>(this) {
+            DailyAdapter.Dato[] datos = null;
             @Override
             protected void onStartLoading() {
                 Log.v( TAG, "PARAM START NAME: "+args.getString(STATION_KEY_ID));
@@ -176,7 +185,7 @@ public class ParamActivity extends AppCompatActivity implements
             }
 
             @Override
-            public ParamAdapter.Dato[] loadInBackground() {
+            public DailyAdapter.Dato[] loadInBackground() {
                 String stationID = args.getString(STATION_KEY_ID);
                 String paramID = args.getString(PARAM_KEY_ID);
                 String fecha = args.getString(DATE_KEY_ID);
@@ -185,7 +194,7 @@ public class ParamActivity extends AppCompatActivity implements
                 try {
                     String json = NetworkUtils.getResponseFromHttpUrl(urlDatos);
 
-                    ParamAdapter.Dato[] dats = RrnnJsonUtils.getDatosObjectFromJson(json,paramID);
+                    DailyAdapter.Dato[] dats = RrnnJsonUtils.getDatosObjectFromJson(json,paramID);
                     return dats;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -195,7 +204,7 @@ public class ParamActivity extends AppCompatActivity implements
             }
 
             @Override
-            public void deliverResult(ParamAdapter.Dato[] data) {
+            public void deliverResult(DailyAdapter.Dato[] data) {
                 datos = data;
                 super.deliverResult(data);
             }
@@ -203,18 +212,26 @@ public class ParamActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLoadFinished(Loader<ParamAdapter.Dato[]> loader, ParamAdapter.Dato[] data) {
+    public void onLoadFinished(Loader<DailyAdapter.Dato[]> loader, DailyAdapter.Dato[] data) {
         pbLoaderList.setVisibility(View.INVISIBLE);
         paramsAdapter.setDatos(data);
         if (data != null) {
             showData();
+            if (data.length > 0) {
+                DailyAdapter.Dato dato = data[0];
+                String decimalesFormat = "%."+ PreferencesUtils.getDecimales(mContext)+"f";
+                String min = String.format( decimalesFormat, dato.min);
+                String max = String.format( decimalesFormat, dato.max);
+                tvMax.setText(max);
+                tvMin.setText(min);
+            }
         }else{
             showError();
         }
     }
 
     @Override
-    public void onLoaderReset(Loader<ParamAdapter.Dato[]> loader) {
+    public void onLoaderReset(Loader<DailyAdapter.Dato[]> loader) {
 
     }
 

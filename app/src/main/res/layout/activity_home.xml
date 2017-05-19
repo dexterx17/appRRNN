@@ -14,7 +14,7 @@
         android:padding="16dp"
         android:textSize="20sp"
         android:visibility="invisible"
-        android:text="@string/error_load_list_stations"/>
+        android:text="@string/loading_from_rrnn"/>
     <ProgressBar
         android:id="@+id/pb_loader_list_stations"
         android:layout_width="42dp"

@@ -8,11 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.sql.Date;
-
 import santana.estudio.tungurahuaclima.R;
 import santana.estudio.tungurahuaclima.utilities.PreferencesUtils;
-import santana.estudio.tungurahuaclima.utilities.Utils;
 
 /**
  * Created by dexter on 17/05/2017.
@@ -20,7 +17,7 @@ import santana.estudio.tungurahuaclima.utilities.Utils;
 
 public class HourlyAdapter extends RecyclerView.Adapter<HourlyAdapter.ParamAdapterViewHolder>{
 
-    ParamAdapter.Dato[] datos;
+    DailyAdapter.Dato[] datos;
 
     private final Context mContext;
 
@@ -66,7 +63,7 @@ public class HourlyAdapter extends RecyclerView.Adapter<HourlyAdapter.ParamAdapt
         return datos.length;
     }
 
-    public void setDatos(ParamAdapter.Dato[] data){
+    public void setDatos(DailyAdapter.Dato[] data){
         datos = data;
         notifyDataSetChanged();
     }

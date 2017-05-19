@@ -1,5 +1,6 @@
 package santana.estudio.tungurahuaclima.adapters;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,9 +19,12 @@ public class ParamsStationAdapter extends RecyclerView.Adapter<ParamsStationAdap
 
     Cursor params;
 
+    Context context;
+
     private final ParamsStationAdapterOnClickHander clickHander;
 
-    public ParamsStationAdapter(ParamsStationAdapterOnClickHander handler){
+    public ParamsStationAdapter(Context context,ParamsStationAdapterOnClickHander handler){
+        this.context = context;
         clickHander = handler;
     }
 
@@ -65,10 +69,16 @@ public class ParamsStationAdapter extends RecyclerView.Adapter<ParamsStationAdap
         String paramMin = params.getString(params.getColumnIndex(RrnnContract.ParamEntry.COLUMN_MIN));
         String paramMax = params.getString(params.getColumnIndex(RrnnContract.ParamEntry.COLUMN_MAX));
 
+        if (paramMax.equals("") && paramMin.equals("")) {
+            holder.tvParamDateMin.setText(context.getResources().getString(R.string.no_data_available));
+            holder.tvParamDateMax.setText("");
+        }else{
+            holder.tvParamDateMin.setText(paramMin);
+            holder.tvParamDateMax.setText(paramMax);
+        }
         holder.tvParamName.setText(paramName);
         holder.tvParamUnity.setText(paramUnity);
-        holder.tvParamDateMin.setText(paramMin);
-        holder.tvParamDateMax.setText(paramMax);
+
         holder.itemView.setTag(paramKey);
     }
 

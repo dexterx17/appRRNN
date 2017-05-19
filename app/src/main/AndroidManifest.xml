@@ -22,15 +22,15 @@
             <meta-data android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Home"/>
         </activity>
-        <activity android:name=".ParamActivity"
+        <activity android:name=".DailyActivity"
             android:parentActivityName=".StationActivity">
             <meta-data android:name="android.support.PARENT_ACTIVITY"
                 android:value=".StationActivity"/>
         </activity>
         <activity android:name=".HourlyActivity"
-            android:parentActivityName=".ParamActivity">
+            android:parentActivityName=".DailyActivity">
             <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ParamActivity"/>
+                android:value=".DailyActivity"/>
         </activity>
         <activity android:name=".SettingsActivity"
             android:label="@string/settings"/>

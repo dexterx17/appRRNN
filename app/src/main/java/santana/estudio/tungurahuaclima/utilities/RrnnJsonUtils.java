@@ -2,14 +2,12 @@ package santana.estudio.tungurahuaclima.utilities;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import santana.estudio.tungurahuaclima.adapters.ParamAdapter;
-import santana.estudio.tungurahuaclima.adapters.ParamsStationAdapter;
+import santana.estudio.tungurahuaclima.adapters.DailyAdapter;
 import santana.estudio.tungurahuaclima.data.RrnnContract;
 
 /**
@@ -158,12 +156,12 @@ public class RrnnJsonUtils {
         return params;
     }
 
-    public static ParamAdapter.Dato[] getDatosObjectFromJson(String json,String key) throws JSONException {
-        ParamAdapter.Dato[] datos = null;
+    public static DailyAdapter.Dato[] getDatosObjectFromJson(String json, String key) throws JSONException {
+        DailyAdapter.Dato[] datos = null;
 
         JSONArray jsonArray = new JSONArray(json);
 
-        datos = new ParamAdapter.Dato[jsonArray.length()];
+        datos = new DailyAdapter.Dato[jsonArray.length()];
 
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject object = jsonArray.getJSONObject(i);
@@ -174,7 +172,7 @@ public class RrnnJsonUtils {
             double max = object.getDouble(key+DATO_MAX);
             int count = object.getInt(key+DATO_COUNT);
 
-            ParamAdapter.Dato dato = new ParamAdapter.Dato(fecha, value, min, max, count);
+            DailyAdapter.Dato dato = new DailyAdapter.Dato(fecha, value, min, max, count);
             datos[i] = dato;
         }
 

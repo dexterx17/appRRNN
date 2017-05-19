@@ -30,6 +30,7 @@ import santana.estudio.tungurahuaclima.adapters.StationsAdapter;
 import santana.estudio.tungurahuaclima.data.RrnnContract;
 import santana.estudio.tungurahuaclima.sync.SyncUtils;
 import santana.estudio.tungurahuaclima.utilities.NetworkUtils;
+import santana.estudio.tungurahuaclima.utilities.PreferencesUtils;
 import santana.estudio.tungurahuaclima.utilities.RrnnJsonUtils;
 
 public class Home extends AppCompatActivity implements
@@ -63,7 +64,7 @@ public class Home extends AppCompatActivity implements
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-
+        setOrigenUrl();
         stationsAdapter = new StationsAdapter(this);
         recyclerView.setAdapter(stationsAdapter);
 
@@ -73,6 +74,12 @@ public class Home extends AppCompatActivity implements
 
         SyncUtils.init(this);
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+    }
+
+    private void setOrigenUrl(){
+        String url_load = PreferencesUtils.getServerUrl(this);
+        String msg = getResources().getString(R.string.loading_from_rrnn);
+        tvErrorList.setText(msg+" "+url_load);
     }
 
     private void showError(){
@@ -150,6 +157,8 @@ public class Home extends AppCompatActivity implements
             recyclerView.smoothScrollToPosition(mPosition);
             if (data.getCount() != 0) {
                 showData();
+            }else{
+                tvErrorList.setText(getResources().getString(R.string.error_load_list_stations));
             }
         }else{
             return;
@@ -172,6 +181,8 @@ public class Home extends AppCompatActivity implements
     protected void onStart() {
         super.onStart();
         if (PREFERENCES_UPDATED) {
+            setOrigenUrl();
+            SyncUtils.init(this);
             getSupportLoaderManager().restartLoader(STATIONS_LOADER_ID, null, this);
             PREFERENCES_UPDATED=false;
         }
