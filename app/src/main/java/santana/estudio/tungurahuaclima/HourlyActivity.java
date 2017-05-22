@@ -3,6 +3,7 @@ package santana.estudio.tungurahuaclima;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
@@ -19,8 +20,21 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.BarLineChartBase;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
+
 import java.net.URL;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 import santana.estudio.tungurahuaclima.adapters.HourlyAdapter;
 import santana.estudio.tungurahuaclima.adapters.DailyAdapter;
@@ -46,6 +60,8 @@ public class HourlyActivity extends AppCompatActivity implements
     private TextView tvMin;
     private TextView tvMax;
     private TextView tvDate;
+    private LineChart chart;
+
     private static final String TAG = DailyActivity.class.getSimpleName();
 
     private static final int HOURLY_LOADER_ID = 2;
@@ -62,6 +78,11 @@ public class HourlyActivity extends AppCompatActivity implements
     HourlyAdapter paramsAdapter;
 
     Context mContext;
+
+    List<Entry> entriesMax = new ArrayList<Entry>();
+    LineDataSet dataSetMax;
+    List<Entry> entriesMin = new ArrayList<Entry>();
+    LineDataSet dataSetMin;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +96,7 @@ public class HourlyActivity extends AppCompatActivity implements
         tvDate = (TextView) findViewById(R.id.tv_ph_date);
         pbLoaderList = (ProgressBar) findViewById(R.id.pb_loader_list_param);
         imIcon = (ImageView) findViewById(R.id.iv_ph_icon);
+        chart = (LineChart) findViewById(R.id.chart_daily);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
@@ -238,6 +260,43 @@ public class HourlyActivity extends AppCompatActivity implements
             String maximo = String.format( decimalesFormat, max);
             tvMax.setText(maximo+paramUnity);
             tvMin.setText(minimo+paramUnity);
+
+            chart.setDrawGridBackground(false);
+            chart.getDescription().setEnabled(false);
+            chart.setBackgroundColor(Color.rgb(255, 255, 255));
+
+            IAxisValueFormatter xAxisFormatter = new HourlyActivity.FechaValueFormatter(chart,data);
+
+            XAxis xAxis = chart.getXAxis();
+            xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+            xAxis.setGranularity(1f);
+            xAxis.setValueFormatter(xAxisFormatter);
+
+            for (int i = 0; i <data.length ; i++) {
+                DailyAdapter.Dato d = data[data.length-1-i];
+                entriesMax.add(new Entry((float)i, (float)d.max));
+                entriesMin.add(new Entry((float)i, (float)d.min));
+            }
+            dataSetMax= new LineDataSet(entriesMax, paramID+ " " +getResources().getString(R.string.maxima));
+            dataSetMax.setLineWidth(2.5f);
+            dataSetMax.setCircleRadius(4.5f);
+            dataSetMax.setHighLightColor(Color.rgb(244, 117, 117));
+            dataSetMin = new LineDataSet(entriesMin, paramID+" "+ getResources().getString(R.string.minima));
+            dataSetMin.setLineWidth(2.5f);
+            dataSetMin.setCircleRadius(4.5f);
+            dataSetMin.setHighLightColor(Color.rgb(244, 117, 117));
+            dataSetMin.setColor(ColorTemplate.VORDIPLOM_COLORS[0]);
+            dataSetMin.setCircleColor(ColorTemplate.VORDIPLOM_COLORS[0]);
+
+            ArrayList<ILineDataSet> sets = new ArrayList<ILineDataSet>();
+            sets.add(dataSetMin);
+            sets.add(dataSetMax);
+
+            LineData cd = new LineData(sets);
+
+            chart.setData(cd);
+
+            chart.invalidate();
         }else{
             showError();
         }
@@ -259,4 +318,26 @@ public class HourlyActivity extends AppCompatActivity implements
         recyclerView.setVisibility(View.VISIBLE);
     }
 
+
+    private class FechaValueFormatter implements IAxisValueFormatter {
+
+        private BarLineChartBase<?> chart;
+        DailyAdapter.Dato[] datos;
+        @Override
+        public String getFormattedValue(float value, AxisBase axis) {
+            int position= (int) value;
+            try {
+                DailyAdapter.Dato d = datos[datos.length-1-position];
+                String day = d.fecha.substring(11, 13);
+                return String.valueOf(day);
+            } catch (Exception e) {
+                return String.valueOf(position);
+            }
+        }
+
+        public FechaValueFormatter(BarLineChartBase<?> chart,DailyAdapter.Dato[] datos) {
+            this.chart = chart;
+            this.datos = datos;
+        }
+    }
 }

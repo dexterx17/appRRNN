@@ -6,6 +6,9 @@
     <string name="refresh">Recargar</string>
     <string name="map">Mapa</string>
     <string name="settings">Configuraciones</string>
+    <string name="daily">diaria</string>
+    <string name="maxima">Máxima</string>
+    <string name="minima">Mínima</string>
 
     <!--List stations-->
     <string name="station_name">Nombre estacion</string>
