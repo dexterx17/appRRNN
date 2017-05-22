@@ -117,5 +117,24 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.ParamAdapter
             this.max = max;
             this.count = count;
         }
+
+        public static double MAX(Dato[] datos) {
+            double max = datos[0].max;
+            for (Dato d:datos) {
+                if (d.max > max) {
+                    max=d.max;
+                }
+            }
+            return max;
+        }
+        public static double MIN(Dato[] datos) {
+            double min = datos[0].min;
+            for (Dato d:datos) {
+                if (d.min < min) {
+                    min=d.min;
+                }
+            }
+            return min;
+        }
     }
 }

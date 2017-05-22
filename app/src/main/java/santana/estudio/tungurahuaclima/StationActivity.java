@@ -13,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -210,11 +211,44 @@ public class StationActivity extends AppCompatActivity implements
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.station_menu, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId()== android.R.id.home){
-            onBackPressed();
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_refresh:
+                getSupportLoaderManager().restartLoader(PARAMS_STATION_LOADER_ID, null, this);
+                break;
+            case R.id.action_map:
+                openMap();
+                break;
+            case R.id.action_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                break;
+            case android.R.id.home:
+                onBackPressed();
+            break;
         }
         return super.onOptionsItemSelected(item);
     }
 
+
+    private void openMap(){
+        String address = "Ambato, Ecuador";
+        Uri geoLocation = Uri.parse("geo:0.0?q=" + address);
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(geoLocation);
+
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }else{
+            Log.d(TAG,"No se pudo llamar "+geoLocation.toString()+", sin app de mapas");
+        }
+    }
 }

@@ -14,11 +14,13 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.net.URL;
+import java.sql.Date;
 
 import santana.estudio.tungurahuaclima.adapters.HourlyAdapter;
 import santana.estudio.tungurahuaclima.adapters.DailyAdapter;
@@ -26,6 +28,7 @@ import santana.estudio.tungurahuaclima.data.RrnnContract;
 import santana.estudio.tungurahuaclima.utilities.NetworkUtils;
 import santana.estudio.tungurahuaclima.utilities.PreferencesUtils;
 import santana.estudio.tungurahuaclima.utilities.RrnnJsonUtils;
+import santana.estudio.tungurahuaclima.utilities.Utils;
 
 /**
  * Created by dexter on 18/05/2017.
@@ -53,6 +56,8 @@ public class HourlyActivity extends AppCompatActivity implements
     String stationID;
     String paramID;
     String dateID;
+    String paramUnity;
+    private ImageView imIcon;
 
     HourlyAdapter paramsAdapter;
 
@@ -69,6 +74,7 @@ public class HourlyActivity extends AppCompatActivity implements
         tvParam = (TextView) findViewById(R.id.tv_ph_param);
         tvDate = (TextView) findViewById(R.id.tv_ph_date);
         pbLoaderList = (ProgressBar) findViewById(R.id.pb_loader_list_param);
+        imIcon = (ImageView) findViewById(R.id.iv_ph_icon);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
@@ -110,7 +116,11 @@ public class HourlyActivity extends AppCompatActivity implements
             String stationName = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_NAME));
             String stationType = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_TYPE));
             getSupportActionBar().setTitle(stationName.toUpperCase());
-
+            if (stationType.equals("meteorologica")) {
+                imIcon.setImageResource(R.drawable.ic_light_clouds);
+            }else {
+                imIcon.setImageResource(R.drawable.ic_light_rain);
+            }
             cursor.close();
         }
     }
@@ -130,11 +140,20 @@ public class HourlyActivity extends AppCompatActivity implements
         if (cursor != null || cursor.getCount() != 0) {
             cursor.moveToFirst();
             String paramName = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_NAME));
-            String paramUnity = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_UNITY));
+            paramUnity = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_UNITY));
 
             getSupportActionBar().setSubtitle(paramName.toUpperCase());
             tvParam.setText(paramName);
-            tvDate.setText(fecha);
+            int year = Integer.valueOf(fecha.substring(0, 4));
+            int month = Integer.valueOf(fecha.substring(5, 7));
+            int day = Integer.valueOf(fecha.substring(8, 10));
+
+            long dateInMillis = new Date(year,month,day).getTime();
+         /* Get human readable string using our utility method */
+            String dateString = Utils.getFriendlyDateString(mContext, dateInMillis, false);
+
+
+            tvDate.setText(dateString +" "+year);
             Bundle bundle = new Bundle();
             bundle.putString(STATION_KEY_ID,stationID);
             bundle.putString(PARAM_KEY_ID,paramID);
@@ -212,7 +231,13 @@ public class HourlyActivity extends AppCompatActivity implements
         paramsAdapter.setDatos(data);
         if (data != null) {
             showData();
-
+            double max = DailyAdapter.Dato.MAX(data);
+            double min = DailyAdapter.Dato.MIN(data);
+            String decimalesFormat = "%."+ PreferencesUtils.getDecimales(mContext)+"f";
+            String minimo = String.format( decimalesFormat, min);
+            String maximo = String.format( decimalesFormat, max);
+            tvMax.setText(maximo+paramUnity);
+            tvMin.setText(minimo+paramUnity);
         }else{
             showError();
         }

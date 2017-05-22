@@ -14,10 +14,14 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import santana.estudio.tungurahuaclima.adapters.DailyAdapter;
 import santana.estudio.tungurahuaclima.data.RrnnContract;
@@ -42,6 +46,7 @@ public class DailyActivity extends AppCompatActivity implements
     private TextView tvMin;
     private TextView tvMax;
     private TextView tvDate;
+    private ImageView imIcon;
 
     private static final String TAG = DailyActivity.class.getSimpleName();
 
@@ -52,7 +57,7 @@ public class DailyActivity extends AppCompatActivity implements
 
     String stationID;
     String paramID;
-
+    String paramUnity;
     DailyAdapter paramsAdapter;
 
     Context mContext;
@@ -69,6 +74,7 @@ public class DailyActivity extends AppCompatActivity implements
         tvMax = (TextView) findViewById(R.id.tv_ph_max);
         tvParam = (TextView) findViewById(R.id.tv_ph_param);
         tvDate = (TextView) findViewById(R.id.tv_ph_date);
+        imIcon = (ImageView) findViewById(R.id.iv_ph_icon);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
@@ -80,13 +86,11 @@ public class DailyActivity extends AppCompatActivity implements
             if (intent.hasExtra(Intent.EXTRA_TEXT)) {
                 paramID = intent.getStringExtra(Intent.EXTRA_TEXT);
                 tvErrorList.setVisibility(View.VISIBLE);
-
             }
             if (intent.hasExtra(RrnnContract.StationEntry.COLUMN_STATION_ID)) {
                 stationID = intent.getStringExtra(RrnnContract.StationEntry.COLUMN_STATION_ID);
                 loadStationData(stationID);
                 loadParamData(stationID,paramID);
-
             }
         }
     }
@@ -108,6 +112,11 @@ public class DailyActivity extends AppCompatActivity implements
             String stationType = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_TYPE));
             getSupportActionBar().setTitle(stationName.toUpperCase());
             getSupportActionBar().setSubtitle(stationType.toUpperCase());
+            if (stationType.equals("meteorologica")) {
+                imIcon.setImageResource(R.drawable.ic_light_clouds);
+            }else {
+                imIcon.setImageResource(R.drawable.ic_light_rain);
+            }
             cursor.close();
         }
     }
@@ -128,13 +137,20 @@ public class DailyActivity extends AppCompatActivity implements
         if (cursor != null || cursor.getCount() != 0) {
             cursor.moveToFirst();
             String paramName = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_NAME));
-            String paramUnity = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_UNITY));
+            paramUnity = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_UNITY));
             String paramDateMax = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_MAX));
             paramDateMax = paramDateMax.replace('/','-');
-
-
             tvParam.setText(paramName);
-            tvDate.setText(paramDateMax);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Calendar c = Calendar.getInstance();
+            try {
+                c.setTime(sdf.parse(paramDateMax));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            c.add(Calendar.DAY_OF_MONTH,-14);
+            //SimpleDateFormat sdf1 = new SimpleDateFormat("dd-MM-yyyy");
+            tvDate.setText(sdf.format(c.getTime())+" / "+paramDateMax );
             Bundle bundle = new Bundle();
             bundle.putString(STATION_KEY_ID,stationID);
             bundle.putString(PARAM_KEY_ID,paramID);
@@ -218,12 +234,13 @@ public class DailyActivity extends AppCompatActivity implements
         if (data != null) {
             showData();
             if (data.length > 0) {
-                DailyAdapter.Dato dato = data[0];
+                double max = DailyAdapter.Dato.MAX(data);
+                double min = DailyAdapter.Dato.MIN(data);
                 String decimalesFormat = "%."+ PreferencesUtils.getDecimales(mContext)+"f";
-                String min = String.format( decimalesFormat, dato.min);
-                String max = String.format( decimalesFormat, dato.max);
-                tvMax.setText(max);
-                tvMin.setText(min);
+                String minimo = String.format( decimalesFormat, min);
+                String maximo = String.format( decimalesFormat, max);
+                tvMax.setText(maximo+paramUnity);
+                tvMin.setText(minimo+paramUnity);
             }
         }else{
             showError();

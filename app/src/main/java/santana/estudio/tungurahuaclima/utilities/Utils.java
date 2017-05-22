@@ -86,9 +86,8 @@ public class Utils {
             return getDayName(context, localDate);
         } else {
             int flags = DateUtils.FORMAT_SHOW_DATE
-                    | DateUtils.FORMAT_SHOW_YEAR
-                    | DateUtils.FORMAT_SHOW_YEAR
-                    | DateUtils.FORMAT_ABBREV_ALL
+                    | DateUtils.FORMAT_NO_YEAR
+                    | DateUtils.FORMAT_ABBREV_MONTH
                     | DateUtils.FORMAT_SHOW_WEEKDAY;
 
             return DateUtils.formatDateTime(context, localDate, flags);

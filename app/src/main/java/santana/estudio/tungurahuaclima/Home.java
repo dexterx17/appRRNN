@@ -107,8 +107,8 @@ public class Home extends AppCompatActivity implements
             case R.id.action_refresh:
                 getSupportLoaderManager().restartLoader(STATIONS_LOADER_ID, null, this);
                 break;
-            case R.id.action_map:
-                openMap();
+            case R.id.action_search:
+
                 break;
             case R.id.action_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
@@ -116,20 +116,6 @@ public class Home extends AppCompatActivity implements
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void openMap(){
-        String address = "Ambato, Ecuador";
-        Uri geoLocation = Uri.parse("geo:0.0?q=" + address);
-
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(geoLocation);
-
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
-        }else{
-            Log.d(TAG,"No se pudo llamar "+geoLocation.toString()+", sin app de mapas");
-        }
     }
 
     @Override
