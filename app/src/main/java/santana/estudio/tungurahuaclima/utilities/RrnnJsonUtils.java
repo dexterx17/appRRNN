@@ -30,16 +30,16 @@ public class RrnnJsonUtils {
     private static final String STATION_CANTON = "canton";
     private static final String STATION_PARROQUIA = "parroquia";
     private static final String STATION_MICROCUENCA = "microcuenca";
-    private static final String STATION_ALTITUD = "altitud";
+    private static final String STATION_MIN = "date_min";
+    private static final String STATION_MAX = "date_max";
 
+    private static final String STATION_ALTITUD = "altitud";
     /* Params Station Information */
     private static final String PARAMS_STATION_LIST_KEY = "params";
     private static final String PARAM_NAME = "nombre";
     private static final String PARAM_ID = "_id";
     private static final String PARAM_KEY = "parametro";
     private static final String PARAM_UNITY = "unidad";
-    private static final String PARAM_MIN = "date_min";
-    private static final String PARAM_MAX = "date_max";
     private static final String PARAM_OPERATION_AVG = "promedio";
     private static final String PARAM_STATION_ID = "estacion_id";
 
@@ -104,9 +104,22 @@ public class RrnnJsonUtils {
             String stationCanton = jsonStation.getString(STATION_CANTON);
             String stationParr = jsonStation.getString(STATION_PARROQUIA);
             String stationAddr = jsonStation.getString(STATION_DIRECTION);
+            String paramMin;
+            try{
+                paramMin = jsonStation.getString(STATION_MIN);
+            }catch (JSONException e){
+                paramMin= "";
+            }
+            String paramMax;
+            try{
+                paramMax=jsonStation.getString(STATION_MAX);
+            }catch (JSONException e){
+                paramMax= "";
+            }
 
             ContentValues values = new ContentValues();
-
+            values.put(RrnnContract.StationEntry.COLUMN_MIN,paramMin);
+            values.put(RrnnContract.StationEntry.COLUMN_MAX,paramMax);
             values.put(RrnnContract.StationEntry.COLUMN_NAME,stationName);
             values.put(RrnnContract.StationEntry.COLUMN_STATION_ID,stationId);
             values.put(RrnnContract.StationEntry.COLUMN_TYPE,stationType);
@@ -123,6 +136,29 @@ public class RrnnJsonUtils {
         return stations;
     }
 
+    public static ContentValues getStationContentValuesFromJson(Context context, String jsonStr)  throws JSONException{
+        ContentValues stationValues = new ContentValues();
+
+        JSONObject jsonObject = new JSONObject(jsonStr);
+
+        String paramMin;
+        try{
+            paramMin = jsonObject.getString(STATION_MIN);
+        }catch (JSONException e){
+            paramMin= "";
+        }
+        String paramMax;
+        try{
+            paramMax=jsonObject.getString(STATION_MAX);
+        }catch (JSONException e){
+            paramMax= "";
+        }
+
+        stationValues.put(RrnnContract.StationEntry.COLUMN_MIN,paramMin);
+        stationValues.put(RrnnContract.StationEntry.COLUMN_MAX,paramMax);
+
+        return stationValues;
+    }
     public static ContentValues[] getParamsStationContentValuesFromJson(Context context, String jsonStr, String stationId) throws JSONException{
         ContentValues[] params = null;
 
@@ -139,15 +175,11 @@ public class RrnnJsonUtils {
             String paramKey = object.getString(PARAM_KEY);
             String paramUnity = object.getString(PARAM_UNITY);
             String paramOperation = object.getString(PARAM_OPERATION_AVG);
-            String paramMin = object.getString(PARAM_MIN);
-            String paramMax = object.getString(PARAM_MAX);
             ContentValues param = new ContentValues();
             param.put(RrnnContract.ParamEntry.COLUMN_NAME,paramName);
             param.put(RrnnContract.ParamEntry.COLUMN_KEY,paramKey);
             param.put(RrnnContract.ParamEntry.COLUMN_UNITY,paramUnity);
             param.put(RrnnContract.ParamEntry.COLUMN_AVERAGE,paramOperation);
-            param.put(RrnnContract.ParamEntry.COLUMN_MIN,paramMin);
-            param.put(RrnnContract.ParamEntry.COLUMN_MAX,paramMax);
             param.put(RrnnContract.ParamEntry.COLUMN_PARAM_ID, paramID);
             param.put(RrnnContract.ParamEntry.COLUMN_STATION_ID, stationId);
 

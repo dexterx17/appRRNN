@@ -97,7 +97,7 @@ public class DailyActivity extends AppCompatActivity implements
         tvDate = (TextView) findViewById(R.id.tv_ph_date);
         imIcon = (ImageView) findViewById(R.id.iv_ph_icon);
         chart = (LineChart) findViewById(R.id.chart_daily);
-
+        setOrigenUrl();
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
@@ -111,10 +111,16 @@ public class DailyActivity extends AppCompatActivity implements
             }
             if (intent.hasExtra(RrnnContract.StationEntry.COLUMN_STATION_ID)) {
                 stationID = intent.getStringExtra(RrnnContract.StationEntry.COLUMN_STATION_ID);
-                loadStationData(stationID);
                 loadParamData(stationID,paramID);
+                loadStationData(stationID);
             }
         }
+    }
+
+    private void setOrigenUrl(){
+        String url_load = PreferencesUtils.getServerUrl(this);
+        String msg = getResources().getString(R.string.loading_from_rrnn);
+        tvErrorList.setText(msg+" "+url_load);
     }
 
     private void loadStationData(String stationID){
@@ -132,13 +138,36 @@ public class DailyActivity extends AppCompatActivity implements
             cursor.moveToFirst();
             String stationName = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_NAME));
             String stationType = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_TYPE));
+            String paramDateMax = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_MAX));
+            paramDateMax = paramDateMax.replace('/','-');
             getSupportActionBar().setTitle(stationName.toUpperCase());
             getSupportActionBar().setSubtitle(stationType.toUpperCase());
+
             if (stationType.equals("meteorologica")) {
                 imIcon.setImageResource(R.drawable.ic_light_clouds);
             }else {
                 imIcon.setImageResource(R.drawable.ic_light_rain);
             }
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Calendar c = Calendar.getInstance();
+            try {
+                c.setTime(sdf.parse(paramDateMax));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            c.add(Calendar.DAY_OF_MONTH,-14);
+            //SimpleDateFormat sdf1 = new SimpleDateFormat("dd-MM-yyyy");
+            tvDate.setText(sdf.format(c.getTime())+" / "+paramDateMax );
+            Bundle bundle = new Bundle();
+            bundle.putString(STATION_KEY_ID,stationID);
+            bundle.putString(PARAM_KEY_ID,paramID);
+            bundle.putString(DATE_KEY_ID,paramDateMax);
+            paramsAdapter = new DailyAdapter(this,this,paramUnity);
+            recyclerView.setAdapter(paramsAdapter);
+            LoaderManager.LoaderCallbacks<DailyAdapter.Dato[]> callback = DailyActivity.this;
+            getSupportLoaderManager().initLoader(PARAMS_LOADER_ID, bundle, callback);
+
             cursor.close();
         }
     }
@@ -160,31 +189,7 @@ public class DailyActivity extends AppCompatActivity implements
             cursor.moveToFirst();
             String paramName = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_NAME));
             paramUnity = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_UNITY));
-            String paramDateMax = cursor.getString(cursor.getColumnIndex(RrnnContract.ParamEntry.COLUMN_MAX));
-            paramDateMax = paramDateMax.replace('/','-');
             tvParam.setText(paramName);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Calendar c = Calendar.getInstance();
-            try {
-                c.setTime(sdf.parse(paramDateMax));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            c.add(Calendar.DAY_OF_MONTH,-14);
-            //SimpleDateFormat sdf1 = new SimpleDateFormat("dd-MM-yyyy");
-            tvDate.setText(sdf.format(c.getTime())+" / "+paramDateMax );
-            Bundle bundle = new Bundle();
-            bundle.putString(STATION_KEY_ID,stationID);
-            bundle.putString(PARAM_KEY_ID,paramID);
-            bundle.putString(DATE_KEY_ID,paramDateMax);
-
-            paramsAdapter = new DailyAdapter(this,this,paramUnity);
-            recyclerView.setAdapter(paramsAdapter);
-
-            LoaderManager.LoaderCallbacks<DailyAdapter.Dato[]> callback = DailyActivity.this;
-            getSupportLoaderManager().initLoader(PARAMS_LOADER_ID, bundle, callback);
-
-
             cursor.close();
         }
     }
@@ -300,8 +305,11 @@ public class DailyActivity extends AppCompatActivity implements
                 chart.setData(cd);
 
                 chart.invalidate();
+            }else{
+                tvErrorList.setText(getResources().getString(R.string.error_load_list_param));
             }
         }else{
+            tvErrorList.setText(getResources().getString(R.string.error_load_list_param));
             showError();
         }
     }

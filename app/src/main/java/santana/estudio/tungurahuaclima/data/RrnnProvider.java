@@ -13,9 +13,11 @@ import android.support.annotation.Nullable;
  * Created by dexter on 16/05/2017.
  */
 
-public class StationsProvider extends ContentProvider {
+public class RrnnProvider extends ContentProvider {
     public static final int CODE_STATIONS = 100;
     public static final int CODE_PARAMS = 200;
+    public static final int CODE_EMBALSES = 300;
+    public static final int CODE_EMBALSES_DATA = 301;
     public static final int CODE_STATIONS_WITH_ID = 101;
     public static final int CODE_PARAMS_BY_STATION = 201;
     public static final int CODE_PARAM_BY_ID = 202;
@@ -34,6 +36,9 @@ public class StationsProvider extends ContentProvider {
         matcher.addURI(authority, RrnnContract.PATH_PARAMS, CODE_PARAMS);
         matcher.addURI(authority, RrnnContract.PATH_PARAMS + "/*", CODE_PARAMS_BY_STATION);
 
+        matcher.addURI(authority, RrnnContract.PATH_EMBALSES, CODE_EMBALSES);
+        matcher.addURI(authority, RrnnContract.PATH_DATA_EMBALSES, CODE_EMBALSES_DATA);
+
         return matcher;
     }
 
@@ -51,6 +56,17 @@ public class StationsProvider extends ContentProvider {
             case CODE_STATIONS:
                 cursor = mOpenHelper.getReadableDatabase().query(
                         RrnnContract.StationEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            case CODE_EMBALSES:
+                cursor = mOpenHelper.getReadableDatabase().query(
+                        RrnnContract.EmbalseEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -129,6 +145,26 @@ public class StationsProvider extends ContentProvider {
                 }
 
                 return rowsInserted;
+            case CODE_EMBALSES:
+                db.beginTransaction();
+                rowsInserted = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(RrnnContract.EmbalseEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            rowsInserted++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+
+                if (rowsInserted > 0) {
+                    getContext().getContentResolver().notifyChange(uri, null);
+                }
+
+                return rowsInserted;
             case CODE_PARAMS:
                 db.beginTransaction();
                 rowsInserted = 0;
@@ -181,6 +217,13 @@ public class StationsProvider extends ContentProvider {
                         selectionArgs);
 
                 break;
+            case CODE_EMBALSES:
+                nRowsDeleted = mOpenHelper.getWritableDatabase().delete(
+                        RrnnContract.EmbalseEntry.TABLE_NAME,
+                        selection,
+                        selectionArgs);
+
+                break;
 
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -196,7 +239,20 @@ public class StationsProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        int rowsUpdated=0;
+
+        switch (sUriMatcher.match(uri)) {
+
+            case CODE_STATIONS:
+                rowsUpdated = db.update(RrnnContract.StationEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+        }
+
+        if (rowsUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsUpdated;
     }
 
     @Override

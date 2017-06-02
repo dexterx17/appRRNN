@@ -43,11 +43,18 @@ public class StationsSyncTask  {
         try {
             String json = NetworkUtils.getResponseFromHttpUrl(urlParamsStation);
             ContentValues[] paramValues = RrnnJsonUtils.getParamsStationContentValuesFromJson(context,json, stationID);
+            ContentValues stationValues = RrnnJsonUtils.getStationContentValuesFromJson(context, json);
 
+            ContentResolver contentResolver = context.getContentResolver();
+            if (stationValues != null) {
+                String where = RrnnContract.StationEntry.COLUMN_STATION_ID + "=?";
+                String [] whereArgs = new String[]{stationID};
+                contentResolver.update(RrnnContract.StationEntry.CONTENT_URI, stationValues, where, whereArgs);
+            }
             if (paramValues != null && paramValues.length != 0) {
-                ContentResolver contentResolver = context.getContentResolver();
                 contentResolver.bulkInsert(RrnnContract.ParamEntry.CONTENT_URI, paramValues);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

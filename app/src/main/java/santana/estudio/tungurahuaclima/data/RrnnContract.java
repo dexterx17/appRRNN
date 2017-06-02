@@ -17,6 +17,8 @@ public class RrnnContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     public static final String PATH_STATIONS = "stations";
+    public static final String PATH_EMBALSES = "embalses";
+    public static final String PATH_DATA_EMBALSES = "datos";
     public static final String PATH_PARAMS = "params";
 
     public static final String PATH_WEATHER = "weather";
@@ -42,6 +44,8 @@ public class RrnnContract {
         public static final String COLUMN_ADDRESS = "address";
         public static final String COLUMN_LATITUD = "lat";
         public static final String COLUMN_LONGITUD = "lng";
+        public static final String COLUMN_MIN = "date_min";
+        public static final String COLUMN_MAX = "date_max";
 
     }
 
@@ -56,12 +60,33 @@ public class RrnnContract {
         public static final String COLUMN_KEY = "parametro";
         public static final String COLUMN_UNITY = "unity";
         public static final String COLUMN_AVERAGE = "average";
-        public static final String COLUMN_MIN = "date_min";
-        public static final String COLUMN_MAX = "date_max";
         public static final String COLUMN_PARAM_ID = "parametro_id";
         public static final String COLUMN_STATION_ID = "station_id";
 
     }
+
+    public static class EmbalseEntry implements BaseColumns {
+
+        /* The base CONTENT_URI used to query the Weather table from the content provider */
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
+                .appendPath(PATH_EMBALSES)
+                .build();
+
+        public static final String TABLE_NAME = "embalses";
+
+        public static final String COLUMN_EMBALSE_ID = "embalse_id";
+        public static final String COLUMN_NAME = "name";
+        public static final String COLUMN_IMAGE = "image";
+        public static final String COLUMN_HEIGHT = "height";
+        public static final String COLUMN_DESCRIPTION = "description";
+        public static final String COLUMN_CANTON = "canton";
+        public static final String COLUMN_PARROQUIA = "parroquia";
+        public static final String COLUMN_ADDRESS = "address";
+        public static final String COLUMN_LATITUD = "lat";
+        public static final String COLUMN_LONGITUD = "lng";
+
+    }
+
     public static class WeatherHourlyEntry implements BaseColumns {
         /* The base CONTENT_URI used to query the Weather table from the content provider */
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()

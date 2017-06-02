@@ -32,6 +32,8 @@ public class DbHelper extends SQLiteOpenHelper {
                         RrnnContract.StationEntry.COLUMN_HEIGHT + " NUMERIC NOT NULL DEFAULT 0, " +
                         RrnnContract.StationEntry.COLUMN_LATITUD +" REAL NOT NULL, "+
                         RrnnContract.StationEntry.COLUMN_LONGITUD + " REAL NOT NULL, "+
+                        RrnnContract.StationEntry.COLUMN_MIN + " STRING, "+
+                        RrnnContract.StationEntry.COLUMN_MAX + " STRING, "+
                         RrnnContract.StationEntry.COLUMN_CANTON + " STRING NOT NULL, "+
                         RrnnContract.StationEntry.COLUMN_PARROQUIA + " STRING NOT NULL, "+
                         RrnnContract.StationEntry.COLUMN_ADDRESS + " STRING) ";
@@ -45,11 +47,24 @@ public class DbHelper extends SQLiteOpenHelper {
                         RrnnContract.ParamEntry.COLUMN_KEY + " STRING NOT NULL, "+
                         RrnnContract.ParamEntry.COLUMN_NAME + " STRING NOT NULL, "+
                         RrnnContract.ParamEntry.COLUMN_UNITY + " STRING NOT NULL, "+
-                        RrnnContract.ParamEntry.COLUMN_MIN + " STRING, "+
-                        RrnnContract.ParamEntry.COLUMN_MAX + " STRING, "+
                         RrnnContract.ParamEntry.COLUMN_AVERAGE + " STRING NOT NULL, "+
                         " UNIQUE (" + RrnnContract.ParamEntry.COLUMN_KEY +","+RrnnContract.ParamEntry.COLUMN_STATION_ID +") ON CONFLICT REPLACE);";
         db.execSQL(SQL_CREATE_PARAMS_TABLE);
+
+        final String SQL_CREATE_EMBALSES_TABLE =
+                "CREATE TABLE " + RrnnContract.EmbalseEntry.TABLE_NAME + " (" +
+                        RrnnContract.EmbalseEntry._ID   + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        RrnnContract.EmbalseEntry.COLUMN_EMBALSE_ID   + " STRING NOT NULL, " +
+                        RrnnContract.EmbalseEntry.COLUMN_NAME + " STRING NOT NULL, "+
+                        RrnnContract.EmbalseEntry.COLUMN_IMAGE + " STRING, "+
+                        RrnnContract.EmbalseEntry.COLUMN_DESCRIPTION + " TEXT NOT NULL, "+
+                        RrnnContract.EmbalseEntry.COLUMN_HEIGHT + " NUMERIC NOT NULL DEFAULT 0, " +
+                        RrnnContract.EmbalseEntry.COLUMN_LATITUD +" REAL NOT NULL, "+
+                        RrnnContract.EmbalseEntry.COLUMN_LONGITUD + " REAL NOT NULL, "+
+                        RrnnContract.EmbalseEntry.COLUMN_CANTON + " STRING NOT NULL, "+
+                        RrnnContract.EmbalseEntry.COLUMN_PARROQUIA + " STRING NOT NULL, "+
+                        RrnnContract.EmbalseEntry.COLUMN_ADDRESS + " STRING) ";
+        db.execSQL(SQL_CREATE_EMBALSES_TABLE);
 
         final String SQL_CREATE_WEATHER_HOURLY_TABLE =
                 "CREATE TABLE " + RrnnContract.WeatherHourlyEntry.TABLE_NAME + " (" +
@@ -90,6 +105,7 @@ public class DbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE "+RrnnContract.StationEntry.TABLE_NAME);
         db.execSQL("DROP TABLE "+RrnnContract.ParamEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE "+RrnnContract.EmbalseEntry.TABLE_NAME);
         db.execSQL("DROP TABLE "+RrnnContract.WeatherHourlyEntry.TABLE_NAME);
         onCreate(db);
     }

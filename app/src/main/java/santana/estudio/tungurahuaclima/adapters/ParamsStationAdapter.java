@@ -34,15 +34,13 @@ public class ParamsStationAdapter extends RecyclerView.Adapter<ParamsStationAdap
     public class ParamsStationAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public final TextView tvParamName;
         public final TextView tvParamUnity;
-        public final TextView tvParamDateMin;
-        public final TextView tvParamDateMax;
+        public final TextView tvParamValue;
 
         public ParamsStationAdapterViewHolder(View view) {
             super(view);
             tvParamName = (TextView) view.findViewById(R.id.tv_params_name);
             tvParamUnity = (TextView) view.findViewById(R.id.tv_params_unity);
-            tvParamDateMin = (TextView) view.findViewById(R.id.tv_params_date_min);
-            tvParamDateMax = (TextView) view.findViewById(R.id.tv_params_date_max);
+            tvParamValue= (TextView) view.findViewById(R.id.tv_params_value);
             view.setOnClickListener(this);
         }
 
@@ -66,16 +64,6 @@ public class ParamsStationAdapter extends RecyclerView.Adapter<ParamsStationAdap
         String paramKey = params.getString(params.getColumnIndex(RrnnContract.ParamEntry.COLUMN_KEY));
         String paramName = params.getString(params.getColumnIndex(RrnnContract.ParamEntry.COLUMN_NAME));
         String paramUnity = params.getString(params.getColumnIndex(RrnnContract.ParamEntry.COLUMN_UNITY));
-        String paramMin = params.getString(params.getColumnIndex(RrnnContract.ParamEntry.COLUMN_MIN));
-        String paramMax = params.getString(params.getColumnIndex(RrnnContract.ParamEntry.COLUMN_MAX));
-
-        if (paramMax.equals("") && paramMin.equals("")) {
-            holder.tvParamDateMin.setText(context.getResources().getString(R.string.no_data_available));
-            holder.tvParamDateMax.setText("");
-        }else{
-            holder.tvParamDateMin.setText(paramMin);
-            holder.tvParamDateMax.setText(paramMax);
-        }
         holder.tvParamName.setText(paramName);
         holder.tvParamUnity.setText(paramUnity);
 

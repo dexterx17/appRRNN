@@ -33,7 +33,10 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.net.URL;
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import santana.estudio.tungurahuaclima.adapters.HourlyAdapter;
@@ -97,7 +100,7 @@ public class HourlyActivity extends AppCompatActivity implements
         pbLoaderList = (ProgressBar) findViewById(R.id.pb_loader_list_param);
         imIcon = (ImageView) findViewById(R.id.iv_ph_icon);
         chart = (LineChart) findViewById(R.id.chart_daily);
-
+        setOrigenUrl();
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
@@ -121,6 +124,11 @@ public class HourlyActivity extends AppCompatActivity implements
         }
     }
 
+    private void setOrigenUrl(){
+        String url_load = PreferencesUtils.getServerUrl(this);
+        String msg = getResources().getString(R.string.loading_from_rrnn);
+        tvErrorList.setText(msg+" "+url_load);
+    }
 
     private void loadStationData(String stationID){
         String select = RrnnContract.StationEntry.COLUMN_STATION_ID + " = ?";
@@ -166,16 +174,21 @@ public class HourlyActivity extends AppCompatActivity implements
 
             getSupportActionBar().setSubtitle(paramName.toUpperCase());
             tvParam.setText(paramName);
-            int year = Integer.valueOf(fecha.substring(0, 4));
-            int month = Integer.valueOf(fecha.substring(5, 7));
-            int day = Integer.valueOf(fecha.substring(8, 10));
 
-            long dateInMillis = new Date(year,month,day).getTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Calendar c = Calendar.getInstance();
+            try {
+                c.setTime(sdf.parse(fecha));
+                long dateInMillis = c.getTimeInMillis();
          /* Get human readable string using our utility method */
-            String dateString = Utils.getFriendlyDateString(mContext, dateInMillis, false);
+                String dateString = Utils.getFriendlyDateString(mContext, dateInMillis, true);
+
+                tvDate.setText(dateString +" "+c.get(Calendar.YEAR));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
 
 
-            tvDate.setText(dateString +" "+year);
             Bundle bundle = new Bundle();
             bundle.putString(STATION_KEY_ID,stationID);
             bundle.putString(PARAM_KEY_ID,paramID);
@@ -255,7 +268,7 @@ public class HourlyActivity extends AppCompatActivity implements
             showData();
             double max = DailyAdapter.Dato.MAX(data);
             double min = DailyAdapter.Dato.MIN(data);
-            String decimalesFormat = "%."+ PreferencesUtils.getDecimales(mContext)+"f";
+            String decimalesFormat = "%.0f";
             String minimo = String.format( decimalesFormat, min);
             String maximo = String.format( decimalesFormat, max);
             tvMax.setText(maximo+paramUnity);

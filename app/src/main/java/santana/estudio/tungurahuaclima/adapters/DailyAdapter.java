@@ -9,6 +9,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import santana.estudio.tungurahuaclima.R;
 import santana.estudio.tungurahuaclima.utilities.PreferencesUtils;
@@ -47,16 +50,20 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.ParamAdapter
     @Override
     public void onBindViewHolder(ParamAdapterViewHolder holder, int position) {
         String fecha = datos[position].fecha;
-        int year = Integer.valueOf(fecha.substring(0, 4));
-        int month = Integer.valueOf(fecha.substring(5, 7));
-        int day = Integer.valueOf(fecha.substring(8, 10));
 
-        long dateInMillis = new Date(year,month,day).getTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+        try {
+            c.setTime(sdf.parse(fecha));
+            long dateInMillis = c.getTimeInMillis();
          /* Get human readable string using our utility method */
-        String dateString = Utils.getFriendlyDateString(mContext, dateInMillis, false);
+            String dateString = Utils.getFriendlyDateString(mContext, dateInMillis, false);
 
+            holder.tvDate.setText(dateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
-        holder.tvDate.setText(dateString);
         String decimalesFormat = "%."+ PreferencesUtils.getDecimales(holder.itemView.getContext())+"f";
         String min = String.format( decimalesFormat, datos[position].min );
         String max = String.format( decimalesFormat, datos[position].max );

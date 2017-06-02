@@ -10,17 +10,30 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Home">
+
+        <activity android:name=".HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".EmbalsesActivity"
+            android:label="@string/embalses"
+            android:parentActivityName=".HomeActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value=".HomeActivity"/>
+        </activity>
+        <activity android:name=".StationsActivity"
+            android:label="@string/station_detail"
+            android:parentActivityName=".HomeActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value=".HomeActivity"/>
+        </activity>
         <activity android:name=".StationActivity"
             android:label="@string/station_detail"
-            android:parentActivityName=".Home">
+            android:parentActivityName=".StationsActivity">
             <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Home"/>
+                android:value=".StationsActivity"/>
         </activity>
         <activity android:name=".DailyActivity"
             android:parentActivityName=".StationActivity">
@@ -36,7 +49,7 @@
             android:label="@string/settings"/>
         <provider
             android:authorities="santana.estudio.tungurahuaclima"
-            android:name=".data.StationsProvider"
+            android:name=".data.RrnnProvider"
             android:exported="false"/>
         <service android:name=".sync.StationsSyncIntentService"
             android:exported="false"/>

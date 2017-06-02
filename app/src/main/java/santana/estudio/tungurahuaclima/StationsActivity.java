@@ -1,13 +1,10 @@
 package santana.estudio.tungurahuaclima;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -15,30 +12,23 @@ import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.IOException;
-import java.net.URL;
 
 import santana.estudio.tungurahuaclima.adapters.StationsAdapter;
 import santana.estudio.tungurahuaclima.data.RrnnContract;
 import santana.estudio.tungurahuaclima.sync.SyncUtils;
-import santana.estudio.tungurahuaclima.utilities.NetworkUtils;
 import santana.estudio.tungurahuaclima.utilities.PreferencesUtils;
-import santana.estudio.tungurahuaclima.utilities.RrnnJsonUtils;
 
-public class Home extends AppCompatActivity implements
+public class StationsActivity extends AppCompatActivity implements
         StationsAdapter.StationsAdapterOnClickHandler,
         LoaderManager.LoaderCallbacks<Cursor>,
         SharedPreferences.OnSharedPreferenceChangeListener{
 
-    private static final String TAG = Home.class.getSimpleName();
+    private static final String TAG = StationsActivity.class.getSimpleName();
 
     private static final int STATIONS_LOADER_ID =0;
 
@@ -55,7 +45,7 @@ public class Home extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_stations);
 
         recyclerView = (RecyclerView) findViewById(R.id.rv_list_estaciones);
         tvErrorList = (TextView) findViewById(R.id.tv_error_list_stations);
@@ -70,9 +60,9 @@ public class Home extends AppCompatActivity implements
 
         showError();
 
+        SyncUtils.init(this);
         getSupportLoaderManager().initLoader(STATIONS_LOADER_ID, null, this);
 
-        SyncUtils.init(this);
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
     }
 

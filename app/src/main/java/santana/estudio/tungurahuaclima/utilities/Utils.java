@@ -81,13 +81,10 @@ public class Utils {
             } else {
                 return readableDate;
             }
-        } else if (daysFromEpochToProvidedDate < daysFromEpochToToday + 7) {
-            /* If the input date is less than a week in the future, just return the day name. */
-            return getDayName(context, localDate);
         } else {
             int flags = DateUtils.FORMAT_SHOW_DATE
                     | DateUtils.FORMAT_NO_YEAR
-                    | DateUtils.FORMAT_ABBREV_MONTH
+                    | DateUtils.FORMAT_ABBREV_ALL
                     | DateUtils.FORMAT_SHOW_WEEKDAY;
 
             return DateUtils.formatDateTime(context, localDate, flags);

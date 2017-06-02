@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Clima Tungurahua</string>
-
+    <string name="informacion_hidrometeorologica">Información Hidrometeorológica</string>
+    <string name="tungurahua">Tungurahua</string>
+    <string name="estaciones_tiempo_real">Estaciones en tiempo real</string>
+    <string name="historia_datos_hidrometeo">Historico de datos hidrometeorológicos</string>
+    <string name="embalses">Embalses</string>
+    <string name="cero">0</string>
     <!--Opciones menu-->
 
     <string name="refresh">Recargar</string>
@@ -15,9 +20,12 @@
     <string name="station_canton">Canton</string>
     <string name="msnm">MSNM</string>
     <string name="station_altura">Altura</string>
+    <!--List embalses-->
+    <string name="embalse_name">Nombre embalse</string>
     <!--View station-->
     <string name="param_name">Nombre parametro</string>
     <string name="no_data_available">Sin datos disponibles</string>
+    <string name="data_available">Datos disponibles</string>
     <string name="lat">Lat</string>
     <string name="lng">Lng</string>
     <string name="altitude">Altitud</string>
@@ -66,6 +74,6 @@
     <string name="loading_from_rrnn">Descargando información desde </string>
     <string name="error_load_list_stations">Error al cargar estaciones</string>
     <string name="error_load_list_params_station">La estación no esta transmitiendo datos por el momento</string>
-    <string name="error_load_list_param">Error al leer datos del parametro</string>
+    <string name="error_load_list_param">Error al leer datos desde servidor</string>
 
 </resources>

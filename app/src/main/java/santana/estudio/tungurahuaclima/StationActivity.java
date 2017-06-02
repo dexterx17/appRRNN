@@ -44,11 +44,10 @@ public class StationActivity extends AppCompatActivity implements
     private TextView tvName;
     private TextView tvCanton;
     private TextView tvParroquia;
-    private TextView tvAddress;
-    private TextView tvLat;
-    private TextView tvLng;
-    private TextView tvDescription;
     private TextView tvAltura;
+    private TextView tvDateMin;
+    private TextView tvDateMax;
+    private TextView tvDataAvailable;
 
     String stationID;
 
@@ -70,11 +69,10 @@ public class StationActivity extends AppCompatActivity implements
         tvName = (TextView) findViewById(R.id.tv_station_name);
         tvCanton = (TextView) findViewById(R.id.tv_station_canton);
         tvParroquia = (TextView) findViewById(R.id.tv_station_parroquia);
-        tvAddress = (TextView) findViewById(R.id.tv_station_address);
-        tvLat = (TextView) findViewById(R.id.tv_station_lat);
-        tvLng = (TextView) findViewById(R.id.tv_station_lng);
-        tvDescription = (TextView) findViewById(R.id.tv_station_description);
         tvAltura = (TextView) findViewById(R.id.tv_station_height);
+        tvDateMin = (TextView) findViewById(R.id.tv_date_min_station);
+        tvDateMax = (TextView) findViewById(R.id.tv_date_max_station);
+        tvDataAvailable = (TextView) findViewById(R.id.tv_available_data_station);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
@@ -123,16 +121,22 @@ public class StationActivity extends AppCompatActivity implements
             cursor.moveToFirst();
             String stationName = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_NAME));
             String stationType = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_TYPE));
-            String stationDescription = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_DESCRIPTION));
+
+            String paramMin = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_MIN));
+            String paramMax = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_MAX));
+
+            if (paramMax.equals("") && paramMin.equals("")) {
+                tvDataAvailable.setText(getResources().getString(R.string.no_data_available));
+            }else{
+                tvDateMin.setText(paramMin);
+                tvDateMax.setText(paramMax);
+            }
             String stationAltura = cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_HEIGHT));
             getSupportActionBar().setSubtitle(stationType.toUpperCase());
             tvName.setText(stationName);
             tvCanton.setText(cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_CANTON)));
             tvParroquia.setText(cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_PARROQUIA)));
-            tvAddress.setText(cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_ADDRESS)));
-            tvLat.setText(cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_LATITUD)));
-            tvLng.setText(cursor.getString(cursor.getColumnIndex(RrnnContract.StationEntry.COLUMN_LONGITUD)));
-            tvDescription.setText(stationDescription.trim());
+
             tvAltura.setText(stationAltura+" "+getResources().getString(R.string.msnm));
             cursor.close();
         }
